@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inspeksi Dead Stock 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles for Professional Mobile Experience */
+        body {
+            background-color: #f9fafb; /* gray-50 */
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .form-section {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e5e7eb; /* gray-200 */
+            box-shadow: 0 1px 2px 0 rgba(17, 24, 39, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.75rem;
+            margin-top: 0.35rem;
+            font-size: 0.95rem; 
+            transition: all 0.2s ease;
+            color: #374151; /* gray-700 */
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #0d9488; /* teal-600 */
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+        .input-field[readonly] {
+            background-color: #f3f4f6; /* gray-100 */
+            border-color: #e5e7eb; /* gray-200 */
+            color: #6b7280; /* gray-500 */
+            cursor: not-allowed;
+        }
+        .radio-card {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.875rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #ffffff;
+        }
+        .radio-card:has(input:checked) {
+            background-color: #f0fdfa; /* teal-50 */
+            border-color: #0f766e; /* teal-700 */
+            box-shadow: 0 0 0 1px #0f766e;
+        }
+        .radio-card input[type="radio"] {
+            margin-top: 0.25rem;
+            margin-right: 0.75rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: #0f766e; /* teal-700 */
+        }
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 6px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #d1d5db; /* gray-300 */
+            border-radius: 4px;
+        }
+        /* Custom Toast Notification Smooth Fade */
+        #toastNotification {
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="text-gray-800 pb-20">
+
+    <!-- Custom Toast Container -->
+    <div id="toastNotification" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[200] opacity-0 pointer-events-none flex items-center gap-3 bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-gray-700 max-w-sm w-11/12">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center bg-gray-800 shrink-0">
+            <i id="toastIcon" class="fas fa-info-circle text-teal-400"></i>
+        </div>
+        <span id="toastMessage" class="text-xs font-semibold leading-snug"></span>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-teal-700 to-teal-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm border border-teal-50">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-0 transition-transform">
+                    <i class="fas fa-fingerprint text-3xl text-teal-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Portal Inspeksi</h2>
+                <p class="text-sm text-gray-500 mt-1">Reduce Inventory 2026</p>
+            </div>
+            <div class="mb-5">
+                <input type="text" id="loginPicName" class="input-field w-full text-center text-lg py-3 mb-3 font-medium uppercase" placeholder="Nama PIC" oninput="this.value = this.value.toUpperCase()">
+                <input type="password" id="loginPassword" class="input-field w-full text-center text-xl tracking-[0.25em] py-3 uppercase" placeholder="••••••••" oninput="this.value = this.value.toUpperCase()">
+                <p id="loginError" class="text-red-500 text-xs text-center mt-2 hidden font-medium"><i class="fas fa-exclamation-circle mr-1"></i><span id="loginErrorMsg">Kredensial tidak valid</span></p>
+            </div>
+            <button type="button" id="btnLogin" class="w-full bg-teal-600 hover:bg-teal-500 active:bg-teal-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-teal-900/20">Otorisasi Masuk</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="appHeader" class="bg-teal-800 text-white p-4 sticky top-0 z-50 shadow-lg hidden border-b border-teal-700">
+        <div class="flex items-center justify-between max-w-lg mx-auto">
+            <h1 class="text-lg font-bold tracking-tight"><i class="fas fa-clipboard-check mr-2 text-teal-200"></i> Inspeksi <span id="roleBadge" class="text-[10px] bg-teal-700 text-teal-100 border border-teal-600 font-bold px-2.5 py-1 rounded-full ml-2 align-middle tracking-wide uppercase"></span></h1>
+            <div class="flex gap-2 items-center">
+                <span class="text-xs bg-teal-900 border border-teal-700 text-teal-200 px-2 py-1 rounded-md font-medium">v2026</span>
+                <button type="button" id="btnLogout" class="text-xs bg-red-600 hover:bg-red-700 active:scale-[0.95] text-white px-2.5 py-1.5 rounded-md font-bold transition-all shadow-sm"><i class="fas fa-sign-out-alt mr-1"></i> Back</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Form -->
+    <main id="mainApp" class="p-4 max-w-lg mx-auto hidden mt-2">
+        <form id="inspeksiForm" class="space-y-5">
+            <div class="form-section">
+                <!-- 1. Tgl Cycle Count -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Tgl Cycle Count</label>
+                    <input type="date" id="tglCycleCount" name="tglCycleCount" class="input-field" readonly required>
+                </div>
+                
+                <!-- 2. Pelaksana -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Pelaksana</label>
+                    <input type="text" id="pelaksana" name="pelaksana" class="input-field bg-gray-100 text-gray-500" readonly>
+                </div>
+
+                <!-- 3. Material -->
+                <div id="logistikSearchGroup" class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Material / Part Number</label>
+                    <div class="relative mt-1">
+                        <div class="flex gap-2 items-start">
+                            <input type="text" id="materialNumber" name="materialNumber" class="input-field !mt-0 flex-1 font-medium" placeholder="Cth: 123456 atau MPN" required>
+                            <button type="button" id="btnCekStatus" class="bg-teal-50 text-teal-700 px-4 py-3 rounded-xl font-medium hover:bg-teal-100 active:scale-[0.95] transition-all border border-teal-200 shadow-sm flex items-center justify-center min-w-[3.5rem]">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div id="suggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
+                    </div>
+                </div>
+
+                <div id="statusIndicator" class="hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm"></div>
+
+                <!-- Banner Informasi Mode Revisi -->
+                <div id="revisiModeBadge" class="hidden mb-4 p-3 rounded-xl text-xs font-bold text-center border shadow-sm bg-teal-50 text-teal-700 border-teal-200 flex justify-between items-center">
+                    <span><i class="fas fa-edit mr-1.5"></i> Mode: Merevisi Qty Data Sebelumnya</span>
+                    <button type="button" id="btnResetMode" class="text-[10px] bg-teal-200 hover:bg-teal-300 text-teal-800 px-2.5 py-1 rounded-md font-bold transition-colors">Batal Revisi</button>
+                </div>
+
+                <!-- 4. Material Description -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Material Description</label>
+                    <textarea id="description" name="description" class="input-field" rows="2" readonly></textarea>
+                </div>
+
+                <!-- 5. Part Number -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Part Number</label>
+                    <input type="text" id="partNumber" name="partNumber" class="input-field">
+                </div>
+
+                <!-- 5b. Uom -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Uom</label>
+                    <input type="text" id="uom" name="uom" class="input-field">
+                </div>
+
+                <!-- 6. Material Type -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Material Type</label>
+                    <input type="text" id="materialType" name="materialType" class="input-field">
+                </div>
+
+                <!-- 7. Terdaftar Non SOH -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Terdaftar Non SOH</label>
+                    <input type="text" id="terdaftarNonSoh" name="terdaftarNonSoh" class="input-field">
+                </div>
+
+                <!-- 8. Qty Non SOH -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Qty Non SOH</label>
+                    <input type="number" id="qtyNonSoh" name="qtyNonSoh" class="input-field">
+                </div>
+
+                <!-- 9. Site Diskrepansi -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Site Diskrepansi</label>
+                    <input type="text" id="siteDiskrepansi" name="siteDiskrepansi" class="input-field">
+                </div>
+
+                <!-- 10. Qty Diskrepansi -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Qty Diskrepansi</label>
+                    <input type="number" id="qtyDiskrepansi" name="qtyDiskrepansi" class="input-field">
+                </div>
+
+                <!-- 11. Tindakan -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Tindakan</label>
+                    <input type="text" id="tindakan" name="tindakan" class="input-field">
+                </div>
+
+                <!-- 12. Qty Tindakan -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Qty Tindakan</label>
+                    <input type="number" id="qtyTindakan" name="qtyTindakan" class="input-field">
+                </div>
+
+                <!-- 13. Actual Final -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Actual Final</label>
+                    <input type="number" id="actualFinal" name="actualFinal" class="input-field" required>
+                </div>
+
+                <!-- 14. Finalisasi Value -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Finalisasi Value <span class="text-xs font-normal text-gray-400 ml-1">(Auto: Actual Final x Price)</span></label>
+                    <input type="number" id="finalisasiValue" name="finalisasiValue" class="input-field bg-gray-100 text-gray-500" readonly>
+                </div>
+
+                <!-- 15. Alarm -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Alarm</label>
+                    <input type="text" id="alarm" name="alarm" class="input-field">
+                </div>
+
+                <!-- 16. Packing To Box -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Packing To Box</label>
+                    <input type="text" id="packingToBox" name="packingToBox" class="input-field">
+                </div>
+
+                <!-- 17. Dokumentasi -->
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Dokumentasi <span class="text-red-500">*</span></label>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="fotoFisik" class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden group" id="dropArea">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6" id="uploadPlaceholder">
+                                <div class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                                    <i class="fas fa-camera text-xl text-gray-400"></i>
+                                </div>
+                                <p class="text-sm text-gray-600 font-medium">Buka Kamera Bawaan</p>
+                            </div>
+                            <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover" alt="Preview Foto">
+                            <input id="fotoFisik" type="file" accept="image/*" capture="environment" class="hidden" required />
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-[11px] text-gray-400 font-medium">Format: JPG/PNG</p>
+                        <button type="button" id="retakeBtn" class="hidden text-xs text-gray-600 font-bold bg-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-300 active:scale-[0.95] transition-all"><i class="fas fa-redo-alt mr-1.5"></i>Ulangi Foto</button>
+                    </div>
+                    <!-- Hidden field to store base64 image -->
+                    <input type="hidden" id="fotoBase64" name="fotoBase64">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-8 mb-10">
+                <button type="submit" id="submitBtn" class="w-full bg-teal-700 hover:bg-teal-600 active:bg-teal-800 active:scale-[0.98] text-white font-bold py-4 px-4 rounded-xl shadow-xl shadow-teal-900/20 flex justify-center items-center transition-all transform hover:-translate-y-0.5">
+                    <i class="fas fa-cloud-upload-alt mr-2 text-lg"></i> Submit Data Cycle Count
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Modal Peringatan Duplikasi / Pilihan Revisi -->
+    <div id="duplicateModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-[160] hidden flex justify-center items-center backdrop-blur-sm p-4">
+        <div class="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl transform scale-100 transition-all">
+            <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 border-[6px] border-amber-100">
+                <i class="fas fa-exclamation-triangle text-2xl text-amber-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 text-center mb-2 tracking-tight">Material Sudah Terinput</h3>
+            <p class="text-gray-500 text-xs text-center leading-relaxed mb-5">
+                Material <span id="dupMaterialCode" class="font-bold text-gray-800"></span> terdeteksi sudah pernah Anda input sebelumnya di spreadsheet.
+                <span class="block mt-2.5 text-xs bg-gray-50 border border-gray-100 p-3 rounded-xl text-gray-700 text-left font-mono space-y-1">
+                    <span>• Actual Final Terinput: <span id="dupActualFinal" class="font-bold text-gray-900"></span></span><br>
+                    <span>• Packing To Box Terinput: <span id="dupPackingToBox" class="font-bold text-gray-900"></span></span>
+                </span>
+                <span class="block mt-3 text-xs text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-100">
+                    <i class="fas fa-exclamation-circle mr-1"></i>PENTING: Simpanlah Item ini ke Packing Box sesuai dengan yang sudah diinput sebelumnya untuk menghindari pemisahan.
+                </span>
+                <span class="block mt-4 text-sm text-gray-600 font-medium">Apakah Anda ingin merevisi Qty dari data yang sudah ada, atau menginput baris baru?</span>
+            </p>
+            <div class="grid grid-cols-1 gap-2">
+                <button type="button" id="btnModeRevisi" class="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-all text-xs flex justify-center items-center">
+                    <i class="fas fa-edit mr-2 text-sm"></i> Revisi Data Lama
+                </button>
+                <button type="button" id="btnModeBaru" class="w-full bg-gray-100 hover:bg-gray-200 active:scale-[0.98] text-gray-700 font-bold py-3 px-4 rounded-xl transition-all text-xs flex justify-center items-center">
+                    <i class="fas fa-plus mr-2 text-sm"></i> Tetap Input Sebagai Baris Baru
+                </button>
+                <button type="button" id="btnCancelDuplicate" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2.5 px-4 rounded-xl transition-all text-xs">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay Loading -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-[150] hidden flex-col justify-center items-center text-white backdrop-blur-sm">
+        <i class="fas fa-circle-notch fa-spin text-5xl mb-5 text-gray-300"></i>
+        <p class="font-bold text-xl tracking-tight">Sinkronisasi Data</p>
+        <p class="text-sm text-gray-400 mt-1 font-medium">Menyimpan ke sistem *Cloud*...</p>
+    </div>
+
+    <!-- Modal Success (Auto-Closing / Non-blocking) -->
+    <div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-[150] hidden flex justify-center items-center backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl transform scale-100 transition-transform">
+            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 border-[6px] border-green-100">
+                <i class="fas fa-check text-4xl text-green-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 tracking-tight">Inspeksi Berhasil</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Data telah tersimpan ke <a href="https://docs.google.com/spreadsheets/d/1cKH5_GvaXszc1hMYfvVd71l6pcvr_sP3z7pCuGCSFww/edit?gid=2127782604#gid=2127782604" target="_blank" class="text-teal-600 hover:underline font-bold">Spreadsheet Hasil</a>.<br><span class="font-semibold text-slate-700">Formulir berikutnya langsung terbuka...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI PENTING ---
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnQbo-YWaGpGmsjGUWMEZAANWFEvO0Y71KZoUwKQbvHlTSfh6lHP4IRyjNKQm0ImdrrQ/exec'; 
+        const CSV_MASTER_DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT0F-_GBZjjgdgL5FGA37rBcicMRZPN4ZJ2cp8h-xDhixdbRdbAaS3QeRPa1bbyY54TWi2Twuz86bpL/pub?gid=756101325&single=true&output=csv';
+        const CSV_ANALISA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=909242961&single=true&output=csv';
+        const CSV_SUBMITTED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=510576667&single=true&output=csv';
+        const CSV_ANTREAN_URL = '';
+        
+        // URL Spreadsheet SOH DC untuk menarik data "Storage Bin"
+        const CSV_SOH_DC_URL = '';
+        
+        // URL Spreadsheet Master Price MM60
+        const CSV_PRICE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=247161967&single=true&output=csv';
+        // ---------------------------
+
+        // PENYARING LOKAL: Menyimpan nomor material yang sudah disubmit dalam sesi ini agar langsung tersembunyi
+        const locallySubmittedMaterials = new Set();
+        
+        // Memori khusus Logistik agar Pop-Up duplikasi muncul instan walau CSV Google belum update
+        window.sessionSubmittedData = {};
+        window.submitMode = 'baru';
+        let cachedSubmittedData = null;
+
+        // Variabel penyimpan data antrean global untuk Plant
+        window.allPendingData = [];
+
+        // Variabel penentu mode pengiriman Logistik ('baru' atau 'revisi')
+        window.submitMode = 'baru';
+        let currentMaterialPrice = 0;
+
+        // UI TOAST NOTIFICATION UTILITY (Menggantikan alert browser untuk visual halus & tanpa lag)
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMsg.textContent = message;
+            
+            // Atur icon & warna berdasarkan tipe notifikasi
+            toastIcon.className = 'fas';
+            if (type === 'error') {
+                toastIcon.classList.add('fa-exclamation-circle', 'text-red-500');
+            } else if (type === 'success') {
+                toastIcon.classList.add('fa-check-circle', 'text-emerald-400');
+            } else {
+                toastIcon.classList.add('fa-info-circle', 'text-teal-400');
+            }
+            
+            // Jalankan animasi slide down lembut
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.style.transform = 'translate(-50%, 10px)';
+            toast.classList.add('opacity-100');
+            
+            // Sembunyikan otomatis dalam 3.5 detik
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.style.transform = 'translate(-50%, -10px)';
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        // PROMISE-BASED FETCH CSV (Supaya proses pengambilan data master stabil & tidak membekukan browser)
+        function loadCSV(url) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: false,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        resolve(results.data);
+                    },
+                    error: function(err) {
+                        reject(err);
+                    }
+                });
+            });
+        }
+
+        // FUNGSI KOMPRESI FOTO OPTIMAL (Kompresi ke 800px & kualitas 50% membuat file super kecil ~30KB)
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        const base64 = dataUrl.split(',')[1];
+                        resolve(base64);
+                    };
+                    img.onerror = function(err) {
+                        reject(err);
+                    };
+                };
+                reader.onerror = function(err) {
+                    reject(err);
+                };
+            });
+        }
+
+        // FUNGSI RESET TAMPILAN KAMERA
+        function resetCameraUI() {
+            const imagePreview = document.getElementById('imagePreview');
+            const fotoInput = document.getElementById('fotoFisik');
+            const fotoBase64Input = document.getElementById('fotoBase64');
+            const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+            const retakeBtn = document.getElementById('retakeBtn');
+
+            if (imagePreview && imagePreview.src && imagePreview.src.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview.src);
+            }
+            if(fotoInput) fotoInput.value = '';
+            if(fotoBase64Input) fotoBase64Input.value = '';
+            if(imagePreview) imagePreview.classList.add('hidden');
+            if(uploadPlaceholder) uploadPlaceholder.classList.remove('hidden');
+            if(retakeBtn) retakeBtn.classList.add('hidden');
+        }
+
+        // Handle Login 
+        const loginScreen = document.getElementById('loginScreen');
+        const loginPicName = document.getElementById('loginPicName');
+        const loginPassword = document.getElementById('loginPassword');
+        const btnLogin = document.getElementById('btnLogin');
+        const loginError = document.getElementById('loginError');
+        const loginErrorMsg = document.getElementById('loginErrorMsg');
+        const appHeader = document.getElementById('appHeader');
+        const mainApp = document.getElementById('mainApp');
+        const roleBadge = document.getElementById('roleBadge');
+
+        let currentUserRole = '';
+        let currentPicName = '';
+
+        function attemptLogin() {
+            const pic = loginPicName.value.trim();
+            const pwd = loginPassword.value;
+
+            if (!pic) {
+                loginErrorMsg.textContent = "Mohon isi Nama PIC terlebih dahulu";
+                loginError.classList.remove('hidden');
+                loginPicName.classList.add('translate-x-1');
+                setTimeout(() => loginPicName.classList.remove('translate-x-1'), 100);
+                return;
+            }
+
+            if (pwd === '1122') {
+                currentUserRole = 'Logistik';
+                currentPicName = pic;
+                setupRoleUI(currentUserRole);
+            } else {
+                loginErrorMsg.textContent = "Kredensial tidak valid";
+                loginError.classList.remove('hidden');
+                loginPassword.classList.add('translate-x-1');
+                setTimeout(() => loginPassword.classList.remove('translate-x-1'), 100);
+            }
+        }
+
+        btnLogin.addEventListener('click', attemptLogin);
+        loginPicName.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loginPassword.focus();
+        });
+        loginPassword.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') attemptLogin();
+        });
+
+        // Tombol Back to Akses (Logout)
+        document.getElementById('btnLogout').addEventListener('click', function() {
+            mainApp.classList.add('hidden');
+            appHeader.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            document.getElementById('loginPassword').value = ''; 
+            document.getElementById('inspeksiForm').reset();
+            document.getElementById('partNumber').removeAttribute('readonly');
+            document.getElementById('uom').removeAttribute('readonly');
+            document.getElementById('materialType').removeAttribute('readonly');
+            document.getElementById('terdaftarNonSoh').removeAttribute('readonly');
+            document.getElementById('qtyNonSoh').removeAttribute('readonly');
+            document.getElementById('siteDiskrepansi').removeAttribute('readonly');
+            document.getElementById('qtyDiskrepansi').removeAttribute('readonly');
+            document.getElementById('tindakan').removeAttribute('readonly');
+            document.getElementById('qtyTindakan').removeAttribute('readonly');
+            document.getElementById('alarm').removeAttribute('readonly');
+            document.getElementById('packingToBox').removeAttribute('readonly');
+            document.getElementById('packingToBox').removeAttribute('required');
+            document.getElementById('statusIndicator').classList.add('hidden');
+            currentMaterialPrice = 0;
+            resetCameraUI();
+        });
+
+        function setupRoleUI(role) {
+            loginScreen.classList.add('hidden');
+            appHeader.classList.remove('hidden');
+            mainApp.classList.remove('hidden');
+            roleBadge.textContent = role;
+            document.getElementById('pelaksana').value = currentPicName;
+
+            // Pre-load data di background secepat mungkin untuk mempercepat kemunculan Pop-Up Duplikasi
+            if (!cachedSubmittedData && CSV_SUBMITTED_URL) {
+                loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime()).then(data => cachedSubmittedData = data).catch(e => console.warn(e));
+            }
+            if (!cachedMasterData && CSV_MASTER_DATA_URL) {
+                loadCSV(CSV_MASTER_DATA_URL).then(data => cachedMasterData = data).catch(e => console.warn(e));
+            }
+            if (!cachedPriceData && CSV_PRICE_URL) {
+                loadCSV(CSV_PRICE_URL).then(data => cachedPriceData = data).catch(e => console.warn(e));
+            }
+        }
+
+        // Set default date to today
+        document.getElementById('tglCycleCount').valueAsDate = new Date();
+
+        // ----------------------------------------------------
+        // LOGIKA PENARIKAN DATA MASTER
+        // ----------------------------------------------------
+        const btnCekStatus = document.getElementById('btnCekStatus');
+        const materialNumberInput = document.getElementById('materialNumber');
+        const suggestionBox = document.getElementById('suggestionBox');
+        
+        let cachedMasterData = null; 
+        let cachedAnalisaData = null;
+        let cachedPriceData = null;
+
+        // ==========================================
+        // FUNGSI KALKULASI FINALISASI VALUE
+        // ==========================================
+        function calculateFinalisasiValue() {
+            const qty = parseFloat(document.getElementById('actualFinal').value) || 0;
+            const price = currentMaterialPrice || 0;
+            const finalField = document.getElementById('finalisasiValue');
+            
+            if (qty > 0 && price > 0) {
+                finalField.value = qty * price;
+            } else {
+                finalField.value = '';
+            }
+        }
+        document.getElementById('actualFinal').addEventListener('input', calculateFinalisasiValue);
+
+        materialNumberInput.addEventListener('focus', async function() {
+            if (!cachedMasterData && CSV_MASTER_DATA_URL) {
+                try {
+                    cachedMasterData = await loadCSV(CSV_MASTER_DATA_URL);
+                } catch (error) {
+                    console.warn("Pre-load data master tertunda karena koneksi.");
+                }
+            }
+            if (!cachedSubmittedData && CSV_SUBMITTED_URL) {
+                try {
+                    // Gunakan parameter waktu agar bypass cache dan selalu mendapat data ter-update
+                    cachedSubmittedData = await loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime());
+                } catch (error) {
+                    console.warn("Pre-load data submitted tertunda.");
+                }
+            }
+            if (!cachedPriceData && CSV_PRICE_URL) {
+                try {
+                    cachedPriceData = await loadCSV(CSV_PRICE_URL);
+                } catch (error) {
+                    console.warn("Pre-load data price tertunda.");
+                }
+            }
+        });
+
+        materialNumberInput.addEventListener('input', function(e) {
+            const val = this.value.trim().toUpperCase();
+            suggestionBox.innerHTML = '';
+            
+            if (!val || !cachedMasterData) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            const matches = cachedMasterData.filter(row => {
+                const matNum = row[0] ? row[0].toString().trim().toUpperCase() : '';
+                const mpnVal = row[2] ? row[2].toString().trim().toUpperCase() : '';
+                return matNum.includes(val) || mpnVal.includes(val); 
+            }).slice(0, 15);
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    const matNum = match[0].toString().trim();
+                    const desc = match[1] ? match[1].toString().trim() : '';
+                    const mpnVal = match[2] ? match[2].toString().trim() : '';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors';
+                    
+                    let titleHtml = `<span class="font-bold text-sm text-gray-800">${matNum}</span>`;
+                    if (mpnVal) {
+                        titleHtml += ` <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded ml-1 border border-teal-100">MPN: ${mpnVal}</span>`;
+                    }
+                    
+                    div.innerHTML = `<div class="flex items-center flex-wrap gap-1 mb-0.5">${titleHtml}</div><div class="text-xs text-gray-500 truncate">${desc}</div>`;
+                    
+                    div.addEventListener('click', function() {
+                        materialNumberInput.value = matNum || mpnVal; 
+                        suggestionBox.classList.add('hidden');
+                        btnCekStatus.click();
+                    });
+                    
+                    suggestionBox.appendChild(div);
+                });
+                suggestionBox.classList.remove('hidden');
+            } else {
+                suggestionBox.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (materialNumberInput && suggestionBox && !materialNumberInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                suggestionBox.classList.add('hidden');
+            }
+        });
+
+        materialNumberInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                suggestionBox.classList.add('hidden');
+                btnCekStatus.click();
+            }
+        });
+
+        btnCekStatus.addEventListener('click', async function() {
+            const inputVal = materialNumberInput.value.trim().toUpperCase(); 
+            const statusIndicator = document.getElementById('statusIndicator');
+            
+            if(!CSV_MASTER_DATA_URL) return;
+
+            btnCekStatus.disabled = true;
+            statusIndicator.classList.add('hidden');
+            statusIndicator.className = 'hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm';
+
+            try {
+                let dataToSearch = null;
+                if (cachedMasterData) {
+                    dataToSearch = cachedMasterData;
+                } else {
+                    cachedMasterData = await loadCSV(CSV_MASTER_DATA_URL);
+                    dataToSearch = cachedMasterData;
+                }
+
+                if (!cachedAnalisaData && CSV_ANALISA_URL) {
+                    cachedAnalisaData = await loadCSV(CSV_ANALISA_URL);
+                }
+                
+                if (!cachedPriceData && CSV_PRICE_URL) {
+                    cachedPriceData = await loadCSV(CSV_PRICE_URL);
+                }
+
+                if (dataToSearch) {
+                    let foundRowArray = null;
+                    for (let i = 0; i < dataToSearch.length; i++) {
+                        const row = dataToSearch[i];
+                        const rowMaterialNumber = row[0] ? row[0].toString().trim().toUpperCase() : '';
+                        const rowMpn = row[2] ? row[2].toString().trim().toUpperCase() : '';
+                        
+                        if (rowMaterialNumber === inputVal || (rowMpn !== '' && rowMpn === inputVal)) {
+                            foundRowArray = row;
+                            break; 
+                        }
+                    }
+
+                    statusIndicator.classList.remove('hidden');
+                    
+                    if (foundRowArray) {
+                        const actualMatNum = foundRowArray[0] ? foundRowArray[0].toString().trim() : '';
+                        const actualMpn = foundRowArray[2] ? foundRowArray[2].toString().trim() : '';
+                        materialNumberInput.value = actualMatNum || actualMpn;
+                        
+                        document.getElementById('description').value = foundRowArray[1] ? foundRowArray[1].trim() : '';
+                        document.getElementById('partNumber').value = foundRowArray[2] ? foundRowArray[2].trim() : '';
+                        document.getElementById('partNumber').setAttribute('readonly', 'true');
+
+                        document.getElementById('uom').value = foundRowArray[3] ? foundRowArray[3].trim() : '';
+                        document.getElementById('uom').setAttribute('readonly', 'true');
+                        
+                        document.getElementById('materialType').value = foundRowArray[4] ? foundRowArray[4].trim() : '';
+                        document.getElementById('materialType').setAttribute('readonly', 'true');
+                        
+                        // ============================================
+                        // PENCARIAN DATA DI SHEET ANALISA DISKREPANSI
+                        // ============================================
+                        let foundAnalisa = null;
+                        // Default Index Kolom
+                        let idxTer = 1, idxQtyN = 2, idxSite = 3, idxQtyD = 4, idxTin = 5, idxQtyT = 6, idxAlrm = 7;
+                        
+                        if (cachedAnalisaData && cachedAnalisaData.length > 0) {
+                            // Dinamis Index Pencarian (Antisipasi Kolom Bergeser)
+                            const headers = cachedAnalisaData[0];
+                            for (let c = 0; c < headers.length; c++) {
+                                const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                                if (h.includes('TERDAFTAR')) idxTer = c;
+                                if (h.includes('QTY NON')) idxQtyN = c;
+                                if (h.includes('SITE')) idxSite = c;
+                                if (h.includes('QTY DISKREPANSI')) idxQtyD = c;
+                                if (h === 'TINDAKAN' || h.includes('TINDAKAN')) idxTin = c;
+                                if (h.includes('QTY TINDAKAN')) idxQtyT = c;
+                                if (h.includes('ALARM')) idxAlrm = c;
+                            }
+
+                            // Cari berdasarkan Material Code
+                            for (let i = 1; i < cachedAnalisaData.length; i++) {
+                                const rowA = cachedAnalisaData[i];
+                                const rowMatA = rowA[0] ? rowA[0].toString().trim().toUpperCase() : '';
+                                if (rowMatA === (actualMatNum || inputVal).toUpperCase()) {
+                                    foundAnalisa = rowA;
+                                    break;
+                                }
+                            }
+                        }
+
+                        let statusValue = '';
+                        if (foundAnalisa) {
+                            document.getElementById('terdaftarNonSoh').value = foundAnalisa[idxTer] ? foundAnalisa[idxTer].trim() : '';
+                            document.getElementById('qtyNonSoh').value = foundAnalisa[idxQtyN] ? foundAnalisa[idxQtyN].trim() : '';
+                            document.getElementById('siteDiskrepansi').value = foundAnalisa[idxSite] ? foundAnalisa[idxSite].trim() : '';
+                            document.getElementById('qtyDiskrepansi').value = foundAnalisa[idxQtyD] ? foundAnalisa[idxQtyD].trim() : '';
+                            document.getElementById('tindakan').value = foundAnalisa[idxTin] ? foundAnalisa[idxTin].trim() : '';
+                            document.getElementById('qtyTindakan').value = foundAnalisa[idxQtyT] ? foundAnalisa[idxQtyT].trim() : '';
+                            
+                            statusValue = foundAnalisa[idxAlrm] ? foundAnalisa[idxAlrm].trim() : '';
+                            document.getElementById('alarm').value = statusValue;
+                        } else {
+                            // Kosongkan jika material tidak ada di Analisa Diskrepansi
+                            document.getElementById('terdaftarNonSoh').value = '';
+                            document.getElementById('qtyNonSoh').value = '';
+                            document.getElementById('siteDiskrepansi').value = '';
+                            document.getElementById('qtyDiskrepansi').value = '';
+                            document.getElementById('tindakan').value = '';
+                            document.getElementById('qtyTindakan').value = '';
+                            document.getElementById('alarm').value = '';
+                        }
+                        
+                        // Kunci (Lock) semua kolom analisa dan alarm ketika material valid ditemukan
+                        document.getElementById('terdaftarNonSoh').setAttribute('readonly', 'true');
+                        document.getElementById('qtyNonSoh').setAttribute('readonly', 'true');
+                        document.getElementById('siteDiskrepansi').setAttribute('readonly', 'true');
+                        document.getElementById('qtyDiskrepansi').setAttribute('readonly', 'true');
+                        document.getElementById('tindakan').setAttribute('readonly', 'true');
+                        document.getElementById('qtyTindakan').setAttribute('readonly', 'true');
+                        document.getElementById('alarm').setAttribute('readonly', 'true');
+
+                        const statusUpper = statusValue.toUpperCase();
+                        if (statusUpper.includes('BOX KHUSUS') || statusUpper.includes('PICKING TO BOX') || statusUpper.includes('PACKING TO BOX')) {
+                            statusIndicator.innerHTML = "<i class='fas fa-exclamation-triangle mr-1.5 animate-bounce inline-block'></i> PERHATIAN: " + statusValue.toUpperCase();
+                            statusIndicator.className = 'mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm bg-red-600 text-white border-red-800 shadow-lg shadow-red-600/50 animate-pulse text-base py-4';
+                        } else if (statusUpper.includes('DEAD STOCK') || statusUpper.includes('BEBAN')) {
+                            statusIndicator.innerHTML = "<i class='fas fa-exclamation-triangle mr-1.5'></i> " + statusValue;
+                            statusIndicator.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+                        } else if (statusValue !== "") {
+                            statusIndicator.innerHTML = "<i class='fas fa-info-circle mr-1.5'></i> " + statusValue;
+                            statusIndicator.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200');
+                        } else {
+                            statusIndicator.innerHTML = "<i class='fas fa-check-circle mr-1.5'></i> Data Ditemukan";
+                            statusIndicator.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                        }
+
+                        // ============================================
+                        // PENCARIAN DATA PRICE MATERIAL
+                        // ============================================
+                        currentMaterialPrice = 0; // Reset harga ke 0
+                        if (cachedPriceData && cachedPriceData.length > 0) {
+                            // Default format baru: Material (0), Descr (1), Part Number (2), UoM (3), Price (4)
+                            let matIdx = 0, priceIdx = 4; 
+                            const headers = cachedPriceData[0];
+                            for (let c = 0; c < headers.length; c++) {
+                                const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                                if (h === 'MATERIAL' || h === 'MATERIAL NUMBER') matIdx = c;
+                                if (h === 'PRICE' || h.includes('PRICE')) priceIdx = c;
+                            }
+
+                            const searchMatClean = (actualMatNum || inputVal).toUpperCase().replace(/^0+/, '');
+                            
+                            for (let k = 1; k < cachedPriceData.length; k++) {
+                                const pRow = cachedPriceData[k];
+                                if (!pRow) continue;
+                                const pMatNum = pRow[matIdx] ? pRow[matIdx].toString().trim().toUpperCase() : '';
+                                const cleanMat = pMatNum.replace(/^0+/, '') || pMatNum;
+                                
+                                if (cleanMat !== '' && cleanMat === searchMatClean) {
+                                    let raw = pRow[priceIdx] ? pRow[priceIdx].toString().trim() : '';
+                                    if (raw !== '') {
+                                        if (raw.includes('.') && raw.lastIndexOf('.') > raw.lastIndexOf(',')) {
+                                            currentMaterialPrice = parseFloat(raw.replace(/,/g, ''));
+                                        } else {
+                                            currentMaterialPrice = parseFloat(raw.replace(/\./g, '').replace(',', '.'));
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        calculateFinalisasiValue(); // Hitung ulang Value jika Actual Final sudah ada nilainya
+
+                        // ============================================
+                        // CEK DUPLIKASI DATA YANG SUDAH PERNAH DIINPUT
+                        // ============================================
+                        if (!cachedSubmittedData && CSV_SUBMITTED_URL) {
+                            try {
+                                cachedSubmittedData = await loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime());
+                            } catch(e) {
+                                console.warn("Gagal memuat data input sebelumnya", e);
+                            }
+                        }
+                        await checkDuplicateInInspections(actualMatNum || inputVal);
+
+                    } else {
+                        statusIndicator.innerHTML = "<i class='fas fa-times-circle mr-1.5'></i> Material tidak ditemukan di Master Data";
+                        statusIndicator.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300');
+                        
+                        document.getElementById('description').value = '';
+                        document.getElementById('partNumber').value = '';
+                        document.getElementById('partNumber').removeAttribute('readonly');
+                        document.getElementById('uom').value = '';
+                        document.getElementById('uom').removeAttribute('readonly');
+                        document.getElementById('materialType').value = '';
+                        document.getElementById('materialType').removeAttribute('readonly');
+                        document.getElementById('alarm').value = '';
+                        document.getElementById('alarm').removeAttribute('readonly');
+                        
+                        // Kosongkan kolom analisa
+                        document.getElementById('terdaftarNonSoh').value = '';
+                        document.getElementById('qtyNonSoh').value = '';
+                        document.getElementById('siteDiskrepansi').value = '';
+                        document.getElementById('qtyDiskrepansi').value = '';
+                        document.getElementById('tindakan').value = '';
+                        document.getElementById('qtyTindakan').value = '';
+                        
+                        // Buka kuncian (Unlock) semua kolom analisa jika material tidak ditemukan
+                        document.getElementById('terdaftarNonSoh').removeAttribute('readonly');
+                        document.getElementById('qtyNonSoh').removeAttribute('readonly');
+                        document.getElementById('siteDiskrepansi').removeAttribute('readonly');
+                        document.getElementById('qtyDiskrepansi').removeAttribute('readonly');
+                        document.getElementById('tindakan').removeAttribute('readonly');
+                        document.getElementById('qtyTindakan').removeAttribute('readonly');
+                        
+                        currentMaterialPrice = 0;
+                        calculateFinalisasiValue();
+                    }
+                }
+
+            } catch (error) {
+                console.error("Fetch error:", error);
+                showToast("Gagal mengunduh Master Data. Coba lagi.", "error");
+            } finally {
+                btnCekStatus.innerHTML = '<i class="fas fa-search"></i>';
+                btnCekStatus.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // FUNGSI CEK DUPLIKASI DAN ACTION HANDLERS
+        // ==========================================
+        async function checkDuplicateInInspections(matNum) {
+            const searchMatNum = matNum.toString().trim().toUpperCase();
+            let duplicateRow = null;
+
+            if (window.sessionSubmittedData && window.sessionSubmittedData[searchMatNum]) {
+                duplicateRow = window.sessionSubmittedData[searchMatNum];
+            } else if (cachedSubmittedData && cachedSubmittedData.length > 0) {
+                let matIdx = 3; // Index 3: Material berdasarkan format
+                let actFinalIdx = 13; // Index 13: Actual Final berdasarkan format
+                let packBoxIdx = 16; // Index 16: Packing To Box berdasarkan format
+                
+                // Cari Index Kolom Dinamis berdasarkan Header (Untuk keamanan jika kolom bergeser)
+                const headers = cachedSubmittedData[0];
+                for (let c = 0; c < headers.length; c++) {
+                    const hText = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                    if (hText === 'MATERIAL' || hText === 'MATERIAL NUMBER') matIdx = c;
+                    if (hText === 'ACTUAL FINAL' || hText.includes('ACTUAL FINAL')) actFinalIdx = c;
+                    if (hText === 'PACKING TO BOX' || hText.includes('PACKING TO BOX')) packBoxIdx = c;
+                }
+
+                // Loop dari data teranyar di bawah
+                for (let i = cachedSubmittedData.length - 1; i >= 1; i--) {
+                    const row = cachedSubmittedData[i];
+                    let cellVal = row[matIdx] ? row[matIdx].toString().trim().toUpperCase() : '';
+                    if (cellVal.startsWith("'")) cellVal = cellVal.substring(1);
+                    
+                    if (cellVal === searchMatNum) {
+                        duplicateRow = {
+                            actualFinal: row[actFinalIdx] ? row[actFinalIdx].toString().trim() : '',
+                            packingToBox: row[packBoxIdx] ? row[packBoxIdx].toString().trim() : ''
+                        };
+                        break;
+                    }
+                }
+            }
+
+            if (duplicateRow) {
+                document.getElementById('dupMaterialCode').textContent = searchMatNum;
+                document.getElementById('dupActualFinal').textContent = duplicateRow.actualFinal || '-';
+                document.getElementById('dupPackingToBox').textContent = duplicateRow.packingToBox || '-';
+                window.currentDuplicateData = duplicateRow;
+                document.getElementById('duplicateModal').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('btnModeRevisi').addEventListener('click', function() {
+            if (window.currentDuplicateData) {
+                window.submitMode = 'revisi';
+                document.getElementById('actualFinal').value = window.currentDuplicateData.actualFinal;
+                calculateFinalisasiValue(); // Auto-hitung value saat Actual Final terisi otomatis
+                document.getElementById('packingToBox').value = window.currentDuplicateData.packingToBox;
+                document.getElementById('packingToBox').setAttribute('readonly', 'true');
+                document.getElementById('packingToBox').setAttribute('required', 'true');
+                document.getElementById('revisiModeBadge').classList.remove('hidden');
+                document.getElementById('duplicateModal').classList.add('hidden');
+                showToast("Mode revisi data aktif. Silakan lakukan perubahan lalu submit.", "info");
+            }
+        });
+
+        document.getElementById('btnModeBaru').addEventListener('click', function() {
+            window.submitMode = 'baru';
+            document.getElementById('revisiModeBadge').classList.add('hidden');
+            document.getElementById('packingToBox').removeAttribute('readonly');
+            document.getElementById('packingToBox').removeAttribute('required');
+            document.getElementById('duplicateModal').classList.add('hidden');
+            showToast("Melanjutkan sebagai input baris baru.", "info");
+        });
+
+        document.getElementById('btnCancelDuplicate').addEventListener('click', function() {
+            document.getElementById('inspeksiForm').reset();
+            document.getElementById('duplicateModal').classList.add('hidden');
+            document.getElementById('statusIndicator').classList.add('hidden');
+            document.getElementById('partNumber').removeAttribute('readonly');
+            document.getElementById('uom').removeAttribute('readonly');
+            document.getElementById('materialType').removeAttribute('readonly');
+            document.getElementById('terdaftarNonSoh').removeAttribute('readonly');
+            document.getElementById('qtyNonSoh').removeAttribute('readonly');
+            document.getElementById('siteDiskrepansi').removeAttribute('readonly');
+            document.getElementById('qtyDiskrepansi').removeAttribute('readonly');
+            document.getElementById('tindakan').removeAttribute('readonly');
+            document.getElementById('qtyTindakan').removeAttribute('readonly');
+            document.getElementById('alarm').removeAttribute('readonly');
+            document.getElementById('packingToBox').removeAttribute('readonly');
+            document.getElementById('packingToBox').removeAttribute('required');
+            currentMaterialPrice = 0;
+            resetCameraUI();
+            showToast("Pengisian material dibatalkan.", "info");
+        });
+
+        document.getElementById('btnResetMode').addEventListener('click', function() {
+            window.submitMode = 'baru';
+            document.getElementById('revisiModeBadge').classList.add('hidden');
+            document.getElementById('packingToBox').removeAttribute('readonly');
+            document.getElementById('packingToBox').removeAttribute('required');
+            showToast("Mode revisi dibatalkan. Kembali ke input baru.", "info");
+        });
+
+        // Handle Camera Image Capture & Preview
+        const fotoInput = document.getElementById('fotoFisik');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const fotoBase64Input = document.getElementById('fotoBase64');
+        const retakeBtn = document.getElementById('retakeBtn');
+
+        fotoInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (imagePreview.src && imagePreview.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(imagePreview.src);
+                }
+
+                imagePreview.src = URL.createObjectURL(file);
+                imagePreview.classList.remove('hidden');
+                uploadPlaceholder.classList.add('hidden');
+                retakeBtn.classList.remove('hidden');
+
+                try {
+                    const compressedBase64 = await compressImage(file, 800, 800, 0.5);
+                    fotoBase64Input.value = compressedBase64;
+                } catch (err) {
+                    console.error("Kompresi gagal, menggunakan fallback default reader:", err);
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        const base64String = reader.result.split(',')[1];
+                        fotoBase64Input.value = base64String;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        retakeBtn.addEventListener('click', function() {
+            resetCameraUI();
+            fotoInput.click();
+        });
+
+        // Handle Form Submission
+        const formObj = document.getElementById('inspeksiForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const successModal = document.getElementById('successModal');
+
+        formObj.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!fotoBase64Input.value) {
+                showToast("Mohon ambil Dokumentasi Fisik (Foto) terlebih dahulu.", "error");
+                return;
+            }
+
+            if(!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === '') {
+                showToast("Sistem belum siap: URL Google Apps Script belum dikonfigurasi.", "error");
+                return;
+            }
+
+            loadingOverlay.classList.replace('hidden', 'flex');
+
+            const formData = new FormData(formObj);
+            const dataObj = {};
+            formData.forEach((value, key) => {
+                dataObj[key] = value;
+            });
+
+            // Map data to new format
+            const payload = {
+                tglCycleCount: dataObj.tglCycleCount,
+                pelaksana: dataObj.pelaksana,
+                material: dataObj.materialNumber,
+                materialDescription: dataObj.description,
+                partNumber: dataObj.partNumber,
+                uom: dataObj.uom,
+                materialType: dataObj.materialType,
+                terdaftarNonSoh: dataObj.terdaftarNonSoh,
+                qtyNonSoh: dataObj.qtyNonSoh,
+                siteDiskrepansi: dataObj.siteDiskrepansi,
+                qtyDiskrepansi: dataObj.qtyDiskrepansi,
+                tindakan: dataObj.tindakan,
+                qtyTindakan: dataObj.qtyTindakan,
+                actualFinal: dataObj.actualFinal,
+                finalisasiValue: dataObj.finalisasiValue,
+                alarm: dataObj.alarm,
+                packingToBox: dataObj.packingToBox,
+                dokumentasi: dataObj.fotoBase64,
+                namaFileDokumentasi: `${dataObj.materialNumber}_${dataObj.tglCycleCount}_${dataObj.pelaksana}`,
+                driveFolderId: '1y2VUDN2gIchsQCO7FrBnXYm3gZoUrzcA',
+                submitMode: window.submitMode || 'baru' // Param ini ditangkap oleh App Script backend
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain', // Safe Content-Type to bypass CORS preflight
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("HTTP error! status: " + response.status);
+                }
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    loadingOverlay.classList.replace('flex', 'hidden');
+                    
+                    // Simpan cache material terbaru yang barusan disubmit beserta data Actual Final-nya
+                    if (dataObj.materialNumber) {
+                        const cleanMat = dataObj.materialNumber.toString().trim().toUpperCase();
+                        window.sessionSubmittedData[cleanMat] = {
+                            actualFinal: dataObj.actualFinal,
+                            packingToBox: dataObj.packingToBox
+                        };
+                    }
+
+                    // Bersihkan tampilan mode
+                    window.submitMode = 'baru';
+                    document.getElementById('revisiModeBadge').classList.add('hidden');
+
+                    successModal.classList.remove('hidden');
+                    
+                    formObj.reset();
+                    document.getElementById('partNumber').removeAttribute('readonly');
+                    document.getElementById('uom').removeAttribute('readonly');
+                    document.getElementById('materialType').removeAttribute('readonly');
+                    document.getElementById('terdaftarNonSoh').removeAttribute('readonly');
+                    document.getElementById('qtyNonSoh').removeAttribute('readonly');
+                    document.getElementById('siteDiskrepansi').removeAttribute('readonly');
+                    document.getElementById('qtyDiskrepansi').removeAttribute('readonly');
+                    document.getElementById('tindakan').removeAttribute('readonly');
+                    document.getElementById('qtyTindakan').removeAttribute('readonly');
+                    document.getElementById('alarm').removeAttribute('readonly');
+                    document.getElementById('packingToBox').removeAttribute('readonly');
+                    document.getElementById('packingToBox').removeAttribute('required');
+                    document.getElementById('tglCycleCount').valueAsDate = new Date();
+                    document.getElementById('pelaksana').value = currentPicName;
+                    document.getElementById('statusIndicator').classList.add('hidden');
+                    currentMaterialPrice = 0;
+                    resetCameraUI();
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    setTimeout(() => {
+                        successModal.classList.add('hidden');
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || "Gagal menyimpan ke spreadsheet.");
+                }
+                
+            } catch (error) {
+                console.error('Error!', error.message);
+                loadingOverlay.classList.replace('flex', 'hidden');
+                showToast("Gagal mengirim data: " + error.message, "error");
+            }
+        });
+    </script>
+</body>
+</html>
