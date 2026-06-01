@@ -153,6 +153,28 @@
 
                 <div id="statusIndicator" class="hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm"></div>
 
+                <!-- Informasi MB52 DC Palaran -->
+                <div id="mb52InfoCard" class="hidden mb-4 p-4 rounded-xl text-sm border bg-teal-50 border-teal-200 text-teal-900 shadow-sm">
+                    <div class="font-bold border-b border-teal-200 pb-1.5 mb-2 flex items-center gap-1.5">
+                        <i class="fas fa-warehouse text-teal-700"></i> Informasi Stock (MB52 DC Palaran)
+                    </div>
+                    <!-- Header Tabel -->
+                    <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-1 border-b border-teal-200/50 pb-1">
+                        <div>Sloc</div>
+                        <div>Storage Bin</div>
+                        <div>Unrestricted</div>
+                    </div>
+                    <!-- Wadah Baris Dinamis -->
+                    <div id="mb52RowsContainer" class="space-y-1 max-h-40 overflow-y-auto mb-2">
+                        <!-- Baris data sloc & bin akan dimasukkan lewat JS -->
+                    </div>
+                    <!-- Baris Total Kumulatif -->
+                    <div class="border-t border-teal-200 pt-2 flex justify-between text-xs font-bold text-teal-950">
+                        <span>TOTAL UNRESTRICTED</span>
+                        <span id="mb52TotalUnrestricted">-</span>
+                    </div>
+                </div>
+
                 <!-- Banner Informasi Mode Revisi -->
                 <div id="revisiModeBadge" class="hidden mb-4 p-3 rounded-xl text-xs font-bold text-center border shadow-sm bg-teal-50 text-teal-700 border-teal-200 flex justify-between items-center">
                     <span><i class="fas fa-edit mr-1.5"></i> Mode: Merevisi Qty Data Sebelumnya</span>
@@ -339,6 +361,9 @@
         
         // URL Spreadsheet Master Price MM60
         const CSV_PRICE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=247161967&single=true&output=csv';
+
+        // URL Spreadsheet MB52 DC Palaran
+        const CSV_MB52_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=2011878581&single=true&output=csv';
         // ---------------------------
 
         // PENYARING LOKAL: Menyimpan nomor material yang sudah disubmit dalam sesi ini agar langsung tersembunyi
@@ -355,6 +380,10 @@
         // Variabel penentu mode pengiriman Logistik ('baru' atau 'revisi')
         window.submitMode = 'baru';
         let currentMaterialPrice = 0;
+        let cachedMasterData = null; 
+        let cachedAnalisaData = null;
+        let cachedPriceData = null;
+        let cachedMb52Data = null;
 
         // UI TOAST NOTIFICATION UTILITY (Menggantikan alert browser untuk visual halus & tanpa lag)
         function showToast(message, type = 'info') {
@@ -532,6 +561,7 @@
             document.getElementById('packingToBox').removeAttribute('readonly');
             document.getElementById('packingToBox').removeAttribute('required');
             document.getElementById('statusIndicator').classList.add('hidden');
+            document.getElementById('mb52InfoCard').classList.add('hidden');
             currentMaterialPrice = 0;
             resetCameraUI();
         });
@@ -553,6 +583,9 @@
             if (!cachedPriceData && CSV_PRICE_URL) {
                 loadCSV(CSV_PRICE_URL).then(data => cachedPriceData = data).catch(e => console.warn(e));
             }
+            if (!cachedMb52Data && CSV_MB52_URL) {
+                loadCSV(CSV_MB52_URL).then(data => cachedMb52Data = data).catch(e => console.warn(e));
+            }
         }
 
         // Set default date to today
@@ -564,10 +597,6 @@
         const btnCekStatus = document.getElementById('btnCekStatus');
         const materialNumberInput = document.getElementById('materialNumber');
         const suggestionBox = document.getElementById('suggestionBox');
-        
-        let cachedMasterData = null; 
-        let cachedAnalisaData = null;
-        let cachedPriceData = null;
 
         // ==========================================
         // FUNGSI KALKULASI FINALISASI VALUE
@@ -606,6 +635,13 @@
                     cachedPriceData = await loadCSV(CSV_PRICE_URL);
                 } catch (error) {
                     console.warn("Pre-load data price tertunda.");
+                }
+            }
+            if (!cachedMb52Data && CSV_MB52_URL) {
+                try {
+                    cachedMb52Data = await loadCSV(CSV_MB52_URL);
+                } catch (error) {
+                    console.warn("Pre-load data MB52 tertunda.");
                 }
             }
         });
@@ -672,11 +708,13 @@
         btnCekStatus.addEventListener('click', async function() {
             const inputVal = materialNumberInput.value.trim().toUpperCase(); 
             const statusIndicator = document.getElementById('statusIndicator');
+            const mb52Card = document.getElementById('mb52InfoCard');
             
             if(!CSV_MASTER_DATA_URL) return;
 
             btnCekStatus.disabled = true;
             statusIndicator.classList.add('hidden');
+            mb52Card.classList.add('hidden');
             statusIndicator.className = 'hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm';
 
             try {
@@ -694,6 +732,10 @@
                 
                 if (!cachedPriceData && CSV_PRICE_URL) {
                     cachedPriceData = await loadCSV(CSV_PRICE_URL);
+                }
+
+                if (!cachedMb52Data && CSV_MB52_URL) {
+                    cachedMb52Data = await loadCSV(CSV_MB52_URL);
                 }
 
                 if (dataToSearch) {
@@ -805,6 +847,72 @@
                         }
 
                         // ============================================
+                        // PENCARIAN DATA DI MB52 DC PALARAN
+                        // ============================================
+                        let foundMb52Rows = [];
+                        let slocIdx = 7, binIdx = 8, unrestrictedIdx = 11;
+                        if (cachedMb52Data && cachedMb52Data.length > 0) {
+                            const headers = cachedMb52Data[0];
+                            for (let c = 0; c < headers.length; c++) {
+                                const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                                if (h === 'STORAGE LOCATION' || h.includes('STORAGE LOCATION')) slocIdx = c;
+                                if (h === 'STORAGE BIN' || h.includes('STORAGE BIN')) binIdx = c;
+                                if (h === 'UNRESTRICTED') unrestrictedIdx = c; 
+                            }
+
+                            const cleanSearchMat = (actualMatNum || inputVal).toUpperCase().replace(/^0+/, '');
+                            for (let i = 1; i < cachedMb52Data.length; i++) {
+                                const rowM = cachedMb52Data[i];
+                                if (!rowM) continue;
+                                const rowMat = rowM[0] ? rowM[0].toString().trim().toUpperCase() : '';
+                                const cleanRowMat = rowMat.replace(/^0+/, '') || rowMat;
+                                
+                                if (cleanRowMat !== '' && cleanRowMat === cleanSearchMat) {
+                                    foundMb52Rows.push(rowM);
+                                }
+                            }
+                        }
+
+                        if (foundMb52Rows.length > 0) {
+                            let htmlRows = '';
+                            let totalUnrestricted = 0;
+                            
+                            foundMb52Rows.forEach(row => {
+                                const sloc = row[slocIdx] ? row[slocIdx].trim() : '-';
+                                const bin = row[binIdx] ? row[binIdx].trim() : '-';
+                                const unrestrictedStr = row[unrestrictedIdx] ? row[unrestrictedIdx].trim() : '0';
+                                
+                                // Parse nilai unrestricted secara benar
+                                let unrestrictedQty = 0;
+                                if (unrestrictedStr !== '-' && unrestrictedStr !== '') {
+                                    let cleanStr = unrestrictedStr.replace(/\s/g, '');
+                                    if (cleanStr.includes('.') && cleanStr.lastIndexOf('.') > cleanStr.lastIndexOf(',')) {
+                                        unrestrictedQty = parseFloat(cleanStr.replace(/,/g, '')) || 0;
+                                    } else {
+                                        unrestrictedQty = parseFloat(cleanStr.replace(/\./g, '').replace(',', '.')) || 0;
+                                    }
+                                }
+                                totalUnrestricted += unrestrictedQty;
+
+                                htmlRows += `
+                                    <div class="grid grid-cols-3 gap-2 text-xs py-1.5 border-b border-teal-100/50 last:border-0">
+                                        <div class="font-bold text-teal-950">${sloc}</div>
+                                        <div class="font-bold text-teal-950">${bin}</div>
+                                        <div class="font-bold text-teal-950">${unrestrictedStr}</div>
+                                    </div>
+                                `;
+                            });
+
+                            document.getElementById('mb52RowsContainer').innerHTML = htmlRows;
+                            document.getElementById('mb52TotalUnrestricted').textContent = totalUnrestricted.toLocaleString('id-ID');
+                            mb52Card.classList.remove('hidden');
+                        } else {
+                            document.getElementById('mb52RowsContainer').innerHTML = '';
+                            document.getElementById('mb52TotalUnrestricted').textContent = '-';
+                            mb52Card.classList.add('hidden');
+                        }
+
+                        // ============================================
                         // PENCARIAN DATA PRICE MATERIAL
                         // ============================================
                         currentMaterialPrice = 0; // Reset harga ke 0
@@ -856,6 +964,7 @@
                     } else {
                         statusIndicator.innerHTML = "<i class='fas fa-times-circle mr-1.5'></i> Material tidak ditemukan di Master Data";
                         statusIndicator.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300');
+                        mb52Card.classList.add('hidden');
                         
                         document.getElementById('description').value = '';
                         document.getElementById('partNumber').value = '';
@@ -972,6 +1081,7 @@
             document.getElementById('inspeksiForm').reset();
             document.getElementById('duplicateModal').classList.add('hidden');
             document.getElementById('statusIndicator').classList.add('hidden');
+            document.getElementById('mb52InfoCard').classList.add('hidden');
             document.getElementById('partNumber').removeAttribute('readonly');
             document.getElementById('uom').removeAttribute('readonly');
             document.getElementById('materialType').removeAttribute('readonly');
@@ -1136,6 +1246,7 @@
                     document.getElementById('tglCycleCount').valueAsDate = new Date();
                     document.getElementById('pelaksana').value = currentPicName;
                     document.getElementById('statusIndicator').classList.add('hidden');
+                    document.getElementById('mb52InfoCard').classList.add('hidden');
                     currentMaterialPrice = 0;
                     resetCameraUI();
                     
