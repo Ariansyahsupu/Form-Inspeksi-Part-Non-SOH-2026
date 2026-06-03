@@ -38,11 +38,12 @@
             border-color: #0d9488; /* teal-600 */
             box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
         }
-        .input-field[readonly] {
+        .input-field[readonly], select[readonly] {
             background-color: #f3f4f6; /* gray-100 */
             border-color: #e5e7eb; /* gray-200 */
             color: #6b7280; /* gray-500 */
             cursor: not-allowed;
+            pointer-events: none;
         }
         .radio-card {
             display: flex;
@@ -153,7 +154,7 @@
 
                 <div id="statusIndicator" class="hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm"></div>
 
-                <!-- Informasi MB52 DC Palaran -->
+                <!-- Informasi MB52 Info Card -->
                 <div id="mb52InfoCard" class="hidden mb-4 p-4 rounded-xl text-sm border bg-teal-50 border-teal-200 text-teal-900 shadow-sm">
                     <div class="font-bold border-b border-teal-200 pb-1.5 mb-2 flex items-center gap-1.5">
                         <i class="fas fa-warehouse text-teal-700"></i> Informasi Stock (MB52 DC Palaran)
@@ -241,10 +242,17 @@
                     <input type="number" id="qtyTindakan" name="qtyTindakan" class="input-field">
                 </div>
 
+                <!-- 12b. Qty Cycle Count -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Qty Cycle Count</label>
+                    <input type="number" id="qtyCycleCount" name="qtyCycleCount" class="input-field">
+                </div>
+
                 <!-- 13. Actual Final -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Actual Final</label>
-                    <input type="number" id="actualFinal" name="actualFinal" class="input-field" required>
+                    <input type="number" id="actualFinal" name="actualFinal" class="input-field bg-gray-100 text-gray-500" readonly required>
+                    <p class="text-[11px] text-gray-500 mt-1 font-medium"><i class="fas fa-info-circle text-teal-600 mr-1"></i>Yang di-input ialah actual final yang part non SOH, bukan semua qty</p>
                 </div>
 
                 <!-- 14. Finalisasi Value -->
@@ -259,10 +267,73 @@
                     <input type="text" id="alarm" name="alarm" class="input-field">
                 </div>
 
-                <!-- 16. Packing To Box -->
+                <!-- 15b. Kategori Part -->
                 <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Kategori Part <span class="text-red-500">*</span></label>
+                    <select id="partCategory" name="partCategory" class="input-field" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="Part non SOH">Part non SOH</option>
+                        <option value="Part DC">Part DC</option>
+                    </select>
+                </div>
+
+                <!-- 16. Packing To Box Group -->
+                <div id="packingToBoxGroup" class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Packing To Box</label>
-                    <input type="text" id="packingToBox" name="packingToBox" class="input-field">
+                    <select id="packingToBox" name="packingToBox" class="input-field">
+                        <option value="">-- Pilih Box --</option>
+                        <option value="BOX A">BOX A</option>
+                        <option value="BOX B">BOX B</option>
+                        <option value="BOX C">BOX C</option>
+                        <option value="BOX D">BOX D</option>
+                        <option value="BOX E">BOX E</option>
+                        <option value="BOX F">BOX F</option>
+                        <option value="BOX MHU">BOX MHU</option>
+                        <option value="BOX MIX (Site Closing)">BOX MIX (Site Closing)</option>
+                        <option value="BOX BYN">BOX BYN</option>
+                        <option value="BOX MBL M">BOX MBL M</option>
+                        <option value="BOX CDI">BOX CDI</option>
+                    </select>
+                </div>
+
+                <!-- 16b. BIN Kalibrasi (Dinamis untuk Part non SOH) -->
+                <div id="binKalibrasiGroup" class="mb-4 hidden relative">
+                    <label class="block text-sm font-semibold text-gray-700">BIN Kalibrasi <span class="text-red-500">*</span></label>
+                    <input type="text" id="binKalibrasi" name="binKalibrasi" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN..." autocomplete="off">
+                    <div id="binSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
+                </div>
+
+                <!-- Group Field untuk Part DC (Dinamis) -->
+                <div id="partDcFieldsGroup" class="hidden">
+                    <!-- Tindakan Part DC Dropdown -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700">Tindakan Part DC <span class="text-red-500">*</span></label>
+                        <select id="partDcAction" name="partDcAction" class="input-field">
+                            <option value="">-- Pilih Tindakan --</option>
+                            <option value="Tetap di BIN">Tetap di BIN</option>
+                            <option value="Pindah BIN">Pindah BIN</option>
+                        </select>
+                    </div>
+
+                    <!-- BIN Asal -->
+                    <div class="mb-4 relative">
+                        <label class="block text-sm font-semibold text-gray-700">BIN Asal <span class="text-red-500">*</span></label>
+                        <input type="text" id="binAsal" name="binAsal" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN asal..." autocomplete="off">
+                        <div id="binAsalSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- BIN Tujuan -->
+                    <div id="binTujuanFieldGroup" class="mb-4 relative hidden">
+                        <label class="block text-sm font-semibold text-gray-700">BIN Tujuan <span class="text-red-500">*</span></label>
+                        <input type="text" id="binTujuan" name="binTujuan" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN tujuan..." autocomplete="off">
+                        <div id="binTujuanSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
+                    </div>
+                </div>
+
+                <!-- 16c. Additional Information / Informasi Tambahan -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">Additional Information / Informasi Tambahan</label>
+                    <textarea id="additionalInfo" name="additionalInfo" class="input-field" rows="2" placeholder="Masukkan informasi tambahan jika ada..."></textarea>
                 </div>
 
                 <!-- 17. Dokumentasi -->
@@ -380,6 +451,7 @@
         // Variabel penentu mode pengiriman Logistik ('baru' atau 'revisi')
         window.submitMode = 'baru';
         let currentMaterialPrice = 0;
+        let currentTotalUnrestricted = 0; // Menyimpan total unrestricted untuk kalkulasi otomatis
         let cachedMasterData = null; 
         let cachedAnalisaData = null;
         let cachedPriceData = null;
@@ -506,8 +578,10 @@
         const mainApp = document.getElementById('mainApp');
         const roleBadge = document.getElementById('roleBadge');
 
-        let currentUserRole = '';
-        let currentPicName = '';
+        // Form elements mapping
+        const formObj = document.getElementById('inspeksiForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const successModal = document.getElementById('successModal');
 
         function attemptLogin() {
             const pic = loginPicName.value.trim();
@@ -562,7 +636,23 @@
             document.getElementById('packingToBox').removeAttribute('required');
             document.getElementById('statusIndicator').classList.add('hidden');
             document.getElementById('mb52InfoCard').classList.add('hidden');
+            document.getElementById('binKalibrasi').value = '';
+            document.getElementById('binKalibrasiGroup').classList.add('hidden');
+            document.getElementById('binKalibrasi').removeAttribute('required');
+            document.getElementById('partCategory').value = '';
+            document.getElementById('partCategory').removeAttribute('readonly');
+            
+            // Reset Part DC Fields
+            document.getElementById('partDcFieldsGroup').classList.add('hidden');
+            document.getElementById('partDcAction').value = '';
+            document.getElementById('partDcAction').removeAttribute('required');
+            document.getElementById('binAsal').value = '';
+            document.getElementById('binAsal').removeAttribute('required');
+            document.getElementById('binTujuan').value = '';
+            document.getElementById('binTujuan').removeAttribute('required');
+
             currentMaterialPrice = 0;
+            currentTotalUnrestricted = 0;
             resetCameraUI();
         });
 
@@ -613,6 +703,46 @@
             }
         }
         document.getElementById('actualFinal').addEventListener('input', calculateFinalisasiValue);
+
+        // ==========================================
+        // FUNGSI KALKULASI OTOMATIS ACTUAL FINAL
+        // Aturan: 
+        // - Jika SOH (Unrestricted) === 0, maka Actual Final adalah Qty Cycle Count (mutlak positif).
+        // - Jika SOH (Unrestricted) > 0, rumus pengurangannya: Qty Cycle Count - Qty Total Unrestricted. 
+        // - Jika hasilnya minus (e.g. 1 - 2 = -1 atau 15 - 17 = -2), maka dikunci di 0.
+        // ==========================================
+        function calculateActualFinal() {
+            const cycleCount = parseFloat(document.getElementById('qtyCycleCount').value) || 0;
+            let actualFinalVal = 0;
+
+            if (currentTotalUnrestricted === 0) {
+                actualFinalVal = cycleCount; // Tetap bernilai positif jika SOH bernilai 0 (part SOH baru ditemukan)
+            } else {
+                actualFinalVal = cycleCount - currentTotalUnrestricted;
+                if (actualFinalVal < 0) {
+                    actualFinalVal = 0; // Kunci ke 0 jika sistem > 0 dan hasil pengurangannya minus
+                }
+            }
+            
+            const actualFinalInput = document.getElementById('actualFinal');
+            actualFinalInput.value = actualFinalVal;
+
+            // --- LOGIKA LOCK KATEGORI PART BERDASARKAN ACTUAL FINAL ---
+            const partCategoryInput = document.getElementById('partCategory');
+            if (actualFinalVal > 0) {
+                partCategoryInput.value = "Part non SOH";
+                partCategoryInput.setAttribute('readonly', 'true');
+            } else {
+                partCategoryInput.value = "Part DC";
+                partCategoryInput.setAttribute('readonly', 'true');
+            }
+            // Trigger change event agar isian dinamis (Packing to Box / Part DC Action) ikut ter-update
+            partCategoryInput.dispatchEvent(new Event('change'));
+            
+            // Hitung ulang Finalisasi Value karena Actual Final berubah
+            calculateFinalisasiValue();
+        }
+        document.getElementById('qtyCycleCount').addEventListener('input', calculateActualFinal);
 
         materialNumberInput.addEventListener('focus', async function() {
             if (!cachedMasterData && CSV_MASTER_DATA_URL) {
@@ -668,7 +798,8 @@
                     const mpnVal = match[2] ? match[2].toString().trim() : '';
                     
                     const div = document.createElement('div');
-                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors';
+                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors text-xs font-bold text-gray-800';
+                    div.textContent = matNum;
                     
                     let titleHtml = `<span class="font-bold text-sm text-gray-800">${matNum}</span>`;
                     if (mpnVal) {
@@ -710,7 +841,7 @@
             const statusIndicator = document.getElementById('statusIndicator');
             const mb52Card = document.getElementById('mb52InfoCard');
             
-            if(!CSV_MASTER_DATA_URL) return;
+            if(!GOOGLE_SCRIPT_URL) return;
 
             btnCekStatus.disabled = true;
             statusIndicator.classList.add('hidden');
@@ -905,10 +1036,14 @@
 
                             document.getElementById('mb52RowsContainer').innerHTML = htmlRows;
                             document.getElementById('mb52TotalUnrestricted').textContent = totalUnrestricted.toLocaleString('id-ID');
+                            currentTotalUnrestricted = totalUnrestricted; // Simpan nilai total unrestricted ke variabel global
+                            calculateActualFinal(); // Lakukan kalkulasi actual final otomatis
                             mb52Card.classList.remove('hidden');
                         } else {
                             document.getElementById('mb52RowsContainer').innerHTML = '';
                             document.getElementById('mb52TotalUnrestricted').textContent = '-';
+                            currentTotalUnrestricted = 0;
+                            calculateActualFinal();
                             mb52Card.classList.add('hidden');
                         }
 
@@ -965,6 +1100,8 @@
                         statusIndicator.innerHTML = "<i class='fas fa-times-circle mr-1.5'></i> Material tidak ditemukan di Master Data";
                         statusIndicator.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300');
                         mb52Card.classList.add('hidden');
+                        currentTotalUnrestricted = 0;
+                        calculateActualFinal();
                         
                         document.getElementById('description').value = '';
                         document.getElementById('partNumber').value = '';
@@ -1060,8 +1197,7 @@
                 document.getElementById('actualFinal').value = window.currentDuplicateData.actualFinal;
                 calculateFinalisasiValue(); // Auto-hitung value saat Actual Final terisi otomatis
                 document.getElementById('packingToBox').value = window.currentDuplicateData.packingToBox;
-                document.getElementById('packingToBox').setAttribute('readonly', 'true');
-                document.getElementById('packingToBox').setAttribute('required', 'true');
+                document.getElementById('packingToBox').dispatchEvent(new Event('change')); // Memicu tampilnya BIN Kalibrasi jika tersimpan sebagai BIN
                 document.getElementById('revisiModeBadge').classList.remove('hidden');
                 document.getElementById('duplicateModal').classList.add('hidden');
                 showToast("Mode revisi data aktif. Silakan lakukan perubahan lalu submit.", "info");
@@ -1091,10 +1227,29 @@
             document.getElementById('qtyDiskrepansi').removeAttribute('readonly');
             document.getElementById('tindakan').removeAttribute('readonly');
             document.getElementById('qtyTindakan').removeAttribute('readonly');
+            document.getElementById('qtyCycleCount').value = '';
             document.getElementById('alarm').removeAttribute('readonly');
             document.getElementById('packingToBox').removeAttribute('readonly');
             document.getElementById('packingToBox').removeAttribute('required');
+            document.getElementById('binKalibrasi').value = '';
+            document.getElementById('binKalibrasiGroup').classList.add('hidden');
+            document.getElementById('binKalibrasi').removeAttribute('required');
+            
+            document.getElementById('partCategory').value = '';
+            document.getElementById('partCategory').removeAttribute('readonly');
+            
+            // Reset Part DC Fields
+            document.getElementById('partDcFieldsGroup').classList.add('hidden');
+            document.getElementById('partDcAction').value = '';
+            document.getElementById('partDcAction').removeAttribute('required');
+            document.getElementById('binAsal').value = '';
+            document.getElementById('binAsal').removeAttribute('required');
+            document.getElementById('binTujuan').value = '';
+            document.getElementById('binTujuan').removeAttribute('required');
+
             currentMaterialPrice = 0;
+            currentTotalUnrestricted = 0;
+            calculateActualFinal();
             resetCameraUI();
             showToast("Pengisian material dibatalkan.", "info");
         });
@@ -1105,6 +1260,210 @@
             document.getElementById('packingToBox').removeAttribute('readonly');
             document.getElementById('packingToBox').removeAttribute('required');
             showToast("Mode revisi dibatalkan. Kembali ke input baru.", "info");
+        });
+
+        // Event handler dinamis untuk menampilkan BIN Kalibrasi
+        const packingToBoxSelect = document.getElementById('packingToBox');
+        const binKalibrasiGroup = document.getElementById('binKalibrasiGroup');
+        const binKalibrasiInput = document.getElementById('binKalibrasi');
+        const binSuggestionBox = document.getElementById('binSuggestionBox');
+
+        packingToBoxSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'Tetap di BIN' || val === 'Pindahkan BIN') {
+                binKalibrasiGroup.classList.remove('hidden');
+                binKalibrasiInput.setAttribute('required', 'true');
+            } else {
+                binKalibrasiGroup.classList.add('hidden');
+                binKalibrasiInput.removeAttribute('required');
+                binKalibrasiInput.value = '';
+            }
+        });
+
+        // Event handler dinamis untuk Kategori Part & Part DC Action
+        const partCategorySelect = document.getElementById('partCategory');
+        const packingToBoxGroup = document.getElementById('packingToBoxGroup');
+        const partDcFieldsGroup = document.getElementById('partDcFieldsGroup');
+        const partDcActionSelect = document.getElementById('partDcAction');
+        const binAsalInput = document.getElementById('binAsal');
+        const binTujuanInput = document.getElementById('binTujuan');
+        const binTujuanFieldGroup = document.getElementById('binTujuanFieldGroup');
+
+        partCategorySelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'Part DC') {
+                // Sembunyikan & kunci Packing To Box
+                packingToBoxSelect.value = '';
+                packingToBoxGroup.classList.add('hidden');
+                packingToBoxSelect.removeAttribute('required');
+                
+                // Sembunyikan BIN Kalibrasi SOH
+                binKalibrasiGroup.classList.add('hidden');
+                binKalibrasiInput.removeAttribute('required');
+                binKalibrasiInput.value = '';
+
+                // Tampilkan Group Field Part DC & set mandatory
+                partDcFieldsGroup.classList.remove('hidden');
+                partDcActionSelect.setAttribute('required', 'true');
+                binAsalInput.setAttribute('required', 'true');
+            } else {
+                // Tampilkan Packing To Box untuk Part non SOH
+                packingToBoxGroup.classList.remove('hidden');
+
+                // Sembunyikan Group Field Part DC & hapus mandatory
+                partDcFieldsGroup.classList.add('hidden');
+                partDcActionSelect.removeAttribute('required');
+                binAsalInput.removeAttribute('required');
+                binTujuanInput.removeAttribute('required');
+                
+                // Reset nilai Part DC
+                partDcActionSelect.value = '';
+                binAsalInput.value = '';
+                binTujuanInput.value = '';
+                binTujuanFieldGroup.classList.add('hidden');
+            }
+        });
+
+        partDcActionSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'Pindah BIN') {
+                binTujuanFieldGroup.classList.remove('hidden');
+                binTujuanInput.setAttribute('required', 'true');
+            } else if (val === 'Tetap di BIN') {
+                binTujuanFieldGroup.classList.add('hidden');
+                binTujuanInput.removeAttribute('required');
+                binTujuanInput.value = ''; // Kosongkan
+            } else {
+                binTujuanFieldGroup.classList.add('hidden');
+                binTujuanInput.removeAttribute('required');
+                binTujuanInput.value = '';
+            }
+        });
+
+        // Mengambil seluruh Storage Bin unik dari file MB52
+        function getUniqueBins() {
+            if (!cachedMb52Data || cachedMb52Data.length <= 1) return [];
+            let binIdx = 8;
+            const headers = cachedMb52Data[0];
+            for (let c = 0; c < headers.length; c++) {
+                const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                if (h === 'STORAGE BIN' || h.includes('STORAGE BIN')) binIdx = c;
+            }
+            const binsSet = new Set();
+            for (let i = 1; i < cachedMb52Data.length; i++) {
+                const row = cachedMb52Data[i];
+                if (row && row[binIdx]) {
+                    const binVal = row[binIdx].trim();
+                    if (binVal && binVal !== '-' && binVal !== '') {
+                        binsSet.add(binVal);
+                    }
+                }
+            }
+            return Array.from(binsSet).sort();
+        }
+
+        // Pencarian interaktif untuk BIN Kalibrasi (Part non SOH)
+        binKalibrasiInput.addEventListener('input', function() {
+            const val = this.value.trim().toUpperCase();
+            binSuggestionBox.innerHTML = '';
+            
+            if (!val) {
+                binSuggestionBox.classList.add('hidden');
+                return;
+            }
+            
+            const allBins = getUniqueBins();
+            const matches = allBins.filter(bin => bin.toUpperCase().includes(val)).slice(0, 15);
+            
+            if (matches.length > 0) {
+                matches.forEach(bin => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors text-xs font-bold text-gray-800';
+                    div.textContent = bin;
+                    div.addEventListener('click', function() {
+                        binKalibrasiInput.value = bin;
+                        binSuggestionBox.classList.add('hidden');
+                    });
+                    binSuggestionBox.appendChild(div);
+                });
+                binSuggestionBox.classList.remove('hidden');
+            } else {
+                binSuggestionBox.classList.add('hidden');
+            }
+        });
+
+        // Pencarian interaktif untuk BIN Asal (Part DC)
+        const binAsalSuggestionBox = document.getElementById('binAsalSuggestionBox');
+        binAsalInput.addEventListener('input', function() {
+            const val = this.value.trim().toUpperCase();
+            binAsalSuggestionBox.innerHTML = '';
+            
+            if (!val) {
+                binAsalSuggestionBox.classList.add('hidden');
+                return;
+            }
+            
+            const allBins = getUniqueBins();
+            const matches = allBins.filter(bin => bin.toUpperCase().includes(val)).slice(0, 15);
+            
+            if (matches.length > 0) {
+                matches.forEach(bin => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors text-xs font-bold text-gray-800';
+                    div.textContent = bin;
+                    div.addEventListener('click', function() {
+                        binAsalInput.value = bin;
+                        binAsalSuggestionBox.classList.add('hidden');
+                    });
+                    binAsalSuggestionBox.appendChild(div);
+                });
+                binAsalSuggestionBox.classList.remove('hidden');
+            } else {
+                binAsalSuggestionBox.classList.add('hidden');
+            }
+        });
+
+        // Pencarian interaktif untuk BIN Tujuan (Part DC)
+        const binTujuanSuggestionBox = document.getElementById('binTujuanSuggestionBox');
+        binTujuanInput.addEventListener('input', function() {
+            const val = this.value.trim().toUpperCase();
+            binTujuanSuggestionBox.innerHTML = '';
+            
+            if (!val) {
+                binTujuanSuggestionBox.classList.add('hidden');
+                return;
+            }
+            
+            const allBins = getUniqueBins();
+            const matches = allBins.filter(bin => bin.toUpperCase().includes(val)).slice(0, 15);
+            
+            if (matches.length > 0) {
+                matches.forEach(bin => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors text-xs font-bold text-gray-800';
+                    div.textContent = bin;
+                    div.addEventListener('click', function() {
+                        binTujuanInput.value = bin;
+                        binTujuanSuggestionBox.classList.add('hidden');
+                    });
+                    binTujuanSuggestionBox.appendChild(div);
+                });
+                binTujuanSuggestionBox.classList.remove('hidden');
+            } else {
+                binTujuanSuggestionBox.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!binKalibrasiInput.contains(e.target) && !binSuggestionBox.contains(e.target)) {
+                binSuggestionBox.classList.add('hidden');
+            }
+            if (!binAsalInput.contains(e.target) && !binAsalSuggestionBox.contains(e.target)) {
+                binAsalSuggestionBox.classList.add('hidden');
+            }
+            if (!binTujuanInput.contains(e.target) && !binTujuanSuggestionBox.contains(e.target)) {
+                binTujuanSuggestionBox.classList.add('hidden');
+            }
         });
 
         // Handle Camera Image Capture & Preview
@@ -1141,16 +1500,7 @@
             }
         });
 
-        retakeBtn.addEventListener('click', function() {
-            resetCameraUI();
-            fotoInput.click();
-        });
-
         // Handle Form Submission
-        const formObj = document.getElementById('inspeksiForm');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const successModal = document.getElementById('successModal');
-
         formObj.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1187,10 +1537,20 @@
                 qtyDiskrepansi: dataObj.qtyDiskrepansi,
                 tindakan: dataObj.tindakan,
                 qtyTindakan: dataObj.qtyTindakan,
+                qtyCycleCount: dataObj.qtyCycleCount || '', 
+                totalUnrestricted: currentTotalUnrestricted, // Parameter ini penting dikirim untuk sinkronisasi kolom
                 actualFinal: dataObj.actualFinal,
                 finalisasiValue: dataObj.finalisasiValue,
                 alarm: dataObj.alarm,
-                packingToBox: dataObj.packingToBox,
+                partCategory: dataObj.partCategory,
+                packingToBox: dataObj.partCategory === 'Part DC' ? '' : dataObj.packingToBox, // Kosongkan bila Kategori Part DC
+                binAsal: dataObj.partCategory === 'Part DC' ? dataObj.binAsal : '',
+                binTujuan: dataObj.partCategory === 'Part DC' ? (dataObj.partDcAction === 'Tetap di BIN' ? dataObj.binAsal : dataObj.binTujuan) : '',
+                binKalibrasi: dataObj.partCategory === 'Part non SOH' ? dataObj.binKalibrasi : '',
+                additionalInfo: dataObj.partCategory === 'Part DC'
+                    ? `[Tindakan DC: ${dataObj.partDcAction || ''}] ${dataObj.additionalInfo || ''}`
+                    : (dataObj.additionalInfo || ''),
+                linkCcp: '',
                 dokumentasi: dataObj.fotoBase64,
                 namaFileDokumentasi: `${dataObj.materialNumber}_${dataObj.tglCycleCount}_${dataObj.pelaksana}`,
                 driveFolderId: '1y2VUDN2gIchsQCO7FrBnXYm3gZoUrzcA',
@@ -1243,11 +1603,32 @@
                     document.getElementById('alarm').removeAttribute('readonly');
                     document.getElementById('packingToBox').removeAttribute('readonly');
                     document.getElementById('packingToBox').removeAttribute('required');
+                    
+                    // Sembunyikan & bersihkan opsi dinamis
+                    document.getElementById('binKalibrasi').value = '';
+                    document.getElementById('binKalibrasiGroup').classList.add('hidden');
+                    document.getElementById('binKalibrasi').removeAttribute('required');
+                    
+                    document.getElementById('partCategory').value = '';
+                    document.getElementById('partCategory').removeAttribute('readonly');
+                    packingToBoxGroup.classList.remove('hidden');
+
+                    document.getElementById('partDcFieldsGroup').classList.add('hidden');
+                    document.getElementById('partDcAction').value = '';
+                    document.getElementById('partDcAction').removeAttribute('required');
+                    document.getElementById('binAsal').value = '';
+                    document.getElementById('binAsal').removeAttribute('required');
+                    document.getElementById('binTujuan').value = '';
+                    document.getElementById('binTujuan').removeAttribute('required');
+                    document.getElementById('binTujuanFieldGroup').classList.add('hidden');
+
                     document.getElementById('tglCycleCount').valueAsDate = new Date();
                     document.getElementById('pelaksana').value = currentPicName;
                     document.getElementById('statusIndicator').classList.add('hidden');
                     document.getElementById('mb52InfoCard').classList.add('hidden');
                     currentMaterialPrice = 0;
+                    currentTotalUnrestricted = 0;
+                    calculateActualFinal();
                     resetCameraUI();
                     
                     window.scrollTo({ top: 0, behavior: 'smooth' });
