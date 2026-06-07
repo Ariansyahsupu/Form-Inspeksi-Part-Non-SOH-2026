@@ -346,6 +346,26 @@
                         <option value="BOX D">BOX D</option>
                         <option value="BOX E">BOX E</option>
                         <option value="BOX F">BOX F</option>
+                        <option value="BOX G">BOX G</option>
+                        <option value="BOX H">BOX H</option>
+                        <option value="BOX I">BOX I</option>
+                        <option value="BOX J">BOX J</option>
+                        <option value="BOX K">BOX K</option>
+                        <option value="BOX L">BOX L</option>
+                        <option value="BOX M">BOX M</option>
+                        <option value="BOX N">BOX N</option>
+                        <option value="BOX O">BOX O</option>
+                        <option value="BOX P">BOX P</option>
+                        <option value="BOX Q">BOX Q</option>
+                        <option value="BOX R">BOX R</option>
+                        <option value="BOX S">BOX S</option>
+                        <option value="BOX T">BOX T</option>
+                        <option value="BOX U">BOX U</option>
+                        <option value="BOX V">BOX V</option>
+                        <option value="BOX W">BOX W</option>
+                        <option value="BOX X">BOX X</option>
+                        <option value="BOX Y">BOX Y</option>
+                        <option value="BOX Z">BOX Z</option>
                         <option value="BOX MHU">BOX MHU</option>
                         <option value="BOX MIX (Site Closing)">BOX MIX (Site Closing)</option>
                         <option value="BOX BYN">BOX BYN</option>
@@ -854,124 +874,6 @@
             }
         }
 
-        // FUNGSI UNTUK MENENTUKAN UNIQUE STORAGE BINS DARI FILE MB52
-        function getUniqueBins() {
-            if (!cachedMb52Data || cachedMb52Data.length <= 1) return [];
-            let binIdx = 8;
-            const headers = cachedMb52Data[0];
-            for (let c = 0; c < headers.length; c++) {
-                const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
-                if (h === 'STORAGE BIN' || h.includes('STORAGE BIN')) binIdx = c;
-            }
-            const binsSet = new Set();
-            for (let i = 1; i < cachedMb52Data.length; i++) {
-                const row = cachedMb52Data[i];
-                if (row && row[binIdx]) {
-                    const binVal = row[binIdx].trim();
-                    if (binVal && binVal !== '-' && binVal !== '') {
-                        binsSet.add(binVal);
-                    }
-                }
-            }
-            return Array.from(binsSet).sort();
-        }
-
-        // FUNGSI KALKULASI FINALISASI VALUE
-        function calculateFinalisasiValue() {
-            if (!actualFinalInput) return;
-            const qty = parseFloat(actualFinalInput.value) || 0;
-            const price = currentMaterialPrice || 0;
-            const finalField = document.getElementById('finalisasiValue');
-            
-            if (finalField) {
-                if (qty > 0 && price > 0) {
-                    finalField.value = qty * price;
-                } else {
-                    finalField.value = '';
-                }
-            }
-        }
-
-        // FUNGSI KALKULASI OTOMATIS ACTUAL FINAL
-        function calculateActualFinal() {
-            if (!qtyCycleCountInput) return;
-            const cycleCount = parseFloat(qtyCycleCountInput.value) || 0;
-            let actualFinalVal = 0;
-
-            if (currentTotalUnrestricted === 0) {
-                actualFinalVal = cycleCount; 
-            } else {
-                actualFinalVal = cycleCount - currentTotalUnrestricted;
-                if (actualFinalVal < 0) {
-                    actualFinalVal = 0; 
-                }
-            }
-            
-            if (actualFinalInput) actualFinalInput.value = actualFinalVal;
-
-            if (partCategorySelect) {
-                if (actualFinalVal > 0) {
-                    partCategorySelect.value = "Part non SOH";
-                    partCategorySelect.setAttribute('readonly', 'true');
-                } else {
-                    partCategorySelect.value = "Part DC";
-                    partCategorySelect.setAttribute('readonly', 'true');
-                }
-                partCategorySelect.dispatchEvent(new Event('change'));
-            }
-            
-            calculateFinalisasiValue();
-        }
-
-        // FUNGSI CEK DUPLIKASI DAN ACTION HANDLERS
-        async function checkDuplicateInInspections(matNum) {
-            const searchMatNum = matNum.toString().trim().toUpperCase().replace(/^0+/, ''); 
-            let duplicateRow = null;
-
-            if (window.sessionSubmittedData && window.sessionSubmittedData[searchMatNum]) {
-                duplicateRow = window.sessionSubmittedData[searchMatNum];
-            } else if (cachedSubmittedData && cachedSubmittedData.length > 0) {
-                let matIdx = 3; 
-                let actFinalIdx = 16; 
-                let packBoxIdx = 19; 
-                let qtyCycleIdx = 15;
-                
-                const headers = cachedSubmittedData[0];
-                for (let c = 0; c < headers.length; c++) {
-                    const hText = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
-                    if (hText === 'MATERIAL' || hText === 'MATERIAL NUMBER' || hText === 'MATERIAL CODE') matIdx = c;
-                    if (hText === 'ACTUAL FINAL NON SOH' || hText === 'ACTUAL FINAL') actFinalIdx = c;
-                    if (hText === 'PACKING TO BOX' || hText === 'PACKING BOX' || hText === 'BOX') packBoxIdx = c;
-                    if (hText === 'ACTUAL FISIK CYCLE COUNT' || hText === 'ACTUAL FISIK' || hText === 'QTY FISIK' || hText === 'ACTUAL FISIK CYCLE COUNT ') qtyCycleIdx = c;
-                }
-
-                for (let i = cachedSubmittedData.length - 1; i >= 1; i--) {
-                    const row = cachedSubmittedData[i];
-                    let cellVal = row[matIdx] ? row[matIdx].toString().trim().toUpperCase() : '';
-                    if (cellVal.startsWith("'")) cellVal = cellVal.substring(1);
-                    cellVal = cellVal.replace(/^0+/, '');
-                    
-                    if (cellVal === searchMatNum) {
-                        duplicateRow = {
-                            actualFinal: row[actFinalIdx] ? row[actFinalIdx].toString().trim() : '0',
-                            packingToBox: row[packBoxIdx] ? row[packBoxIdx].toString().trim() : '',
-                            qtyCycleCount: row[qtyCycleIdx] ? row[qtyCycleIdx].toString().trim() : '0'
-                        };
-                        break;
-                    }
-                }
-            }
-
-            if (duplicateRow) {
-                document.getElementById('dupMaterialCode').textContent = searchMatNum;
-                document.getElementById('dupQtyCycleCount').textContent = duplicateRow.qtyCycleCount || '0';
-                document.getElementById('dupActualFinal').textContent = duplicateRow.actualFinal || '-';
-                document.getElementById('dupPackingToBox').textContent = duplicateRow.packingToBox || '-';
-                window.currentDuplicateData = duplicateRow;
-                document.getElementById('duplicateModal').classList.remove('hidden');
-            }
-        }
-
         // --- DEKLARASI RE-SETUP UI SETELAH LOGIN ---
         function setupRoleUI(role) {
             if (loginScreen) {
@@ -1122,6 +1024,7 @@
                     binTujuanInput.value = '';
                     binTujuanInput.removeAttribute('required');
                 }
+                if (binTujuanFieldGroup) binTujuanFieldGroup.classList.add('hidden');
 
                 // Sembunyikan keterangan Qty Cycle Count sebelumnya
                 const prevQtyFeedback = document.getElementById('prevQtyFeedback');
@@ -1177,7 +1080,7 @@
                     }
                     
                     const sourceHeaders = rawCsvData[0].map(h => h ? h.toString().trim().toUpperCase() : '');
-                    const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => sh === t || sh.includes(t)));
+                    const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => h === t || sh.includes(t)));
 
                     // Pemetaan Indeks database 26 kolom
                     const tsIdx = findIdx(['TIMESTAMP']);
@@ -2041,10 +1944,6 @@
                             binTujuanInput.removeAttribute('required');
                         }
                         if (binTujuanFieldGroup) binTujuanFieldGroup.classList.add('hidden');
-
-                        // Menyembunyikan keterangan Qty Cycle Count sebelumnya
-                        const prevQtyFeedback = document.getElementById('prevQtyFeedback');
-                        if (prevQtyFeedback) prevQtyFeedback.classList.add('hidden');
 
                         if (pelaksanaInput) pelaksanaInput.value = currentPicName;
                         const statusIndicator = document.getElementById('statusIndicator');
