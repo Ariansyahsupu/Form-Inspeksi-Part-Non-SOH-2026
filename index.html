@@ -6,6 +6,7 @@
     <title>Inspeksi Dead Stock 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Tambahan Pustaka SheetJS untuk Export ke Format Excel (.xlsx) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -85,6 +86,7 @@
 </head>
 <body class="text-gray-800 pb-20">
 
+    <!-- Custom Toast Container -->
     <div id="toastNotification" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[200] opacity-0 pointer-events-none flex items-center gap-3 bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-gray-700 max-w-sm w-11/12">
         <div class="w-6 h-6 rounded-full flex items-center justify-center bg-gray-800 shrink-0">
             <i id="toastIcon" class="fas fa-info-circle text-teal-400"></i>
@@ -92,6 +94,7 @@
         <span id="toastMessage" class="text-xs font-semibold leading-snug"></span>
     </div>
 
+    <!-- Login Screen -->
     <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-teal-700 to-teal-900 z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm border border-teal-50">
             <div class="text-center mb-8">
@@ -102,6 +105,7 @@
                 <p class="text-sm text-gray-500 mt-1">Reduce Inventory 2026</p>
             </div>
             <div class="mb-5">
+                <!-- Dropdown PIC Terkalibrasi -->
                 <select id="loginPicName" class="input-field w-full text-center text-lg py-3 mb-3 font-medium uppercase">
                     <option value="" disabled selected>-- PILIH NAMA PIC --</option>
                     <option value="ASMAN">ASMAN</option>
@@ -112,6 +116,7 @@
                     <option value="AKBAR">AKBAR</option>
                     <option value="MAULANA ITSNAL">MAULANA ITSNAL</option>
                     <option value="ARI FAUNDA">ARI FAUNDA</option>
+                    <option value="RIFKI">RIFKI</option>
                 </select>
                 <input type="password" id="loginPassword" class="input-field w-full text-center text-xl tracking-[0.25em] py-3 uppercase" placeholder="••••••••" oninput="this.value = this.value.toUpperCase()">
                 <p id="loginError" class="text-red-500 text-xs text-center mt-2 hidden font-medium"><i class="fas fa-exclamation-circle mr-1"></i><span id="loginErrorMsg">Kredensial tidak valid</span></p>
@@ -120,6 +125,7 @@
         </div>
     </div>
 
+    <!-- Menu Utama Grid Screen (Responsif & Mengisi Space Kosong) -->
     <div id="menuScreen" class="fixed inset-0 bg-gradient-to-br from-teal-700 to-teal-900 z-[90] hidden flex flex-col items-center justify-center p-4 overflow-y-auto">
         <div class="w-full max-w-sm md:max-w-2xl bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-teal-50">
             <div class="text-center mb-6">
@@ -132,6 +138,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Pilihan 1: Form Penginputan -->
                 <button type="button" id="btnGoToForm" class="w-full flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-all text-left group">
                     <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700 shrink-0 group-hover:scale-105 transition-transform">
                         <i class="fas fa-clipboard-list text-xl"></i>
@@ -142,6 +149,7 @@
                     </div>
                 </button>
 
+                <!-- Pilihan 2: Export Data Inspeksi (Langsung Download Excel) -->
                 <button type="button" id="btnGoToExport" class="w-full flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-all text-left group">
                     <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 group-hover:scale-105 transition-transform">
                         <i class="fas fa-file-excel text-xl"></i>
@@ -157,6 +165,7 @@
         </div>
     </div>
 
+    <!-- Header -->
     <header id="appHeader" class="bg-teal-800 text-white p-4 sticky top-0 z-50 shadow-lg hidden border-b border-teal-700">
         <div class="flex items-center justify-between max-w-lg mx-auto">
             <h1 class="text-lg font-bold tracking-tight"><i class="fas fa-clipboard-check mr-2 text-teal-200"></i> Inspeksi <span id="roleBadge" class="text-[10px] bg-teal-700 text-teal-100 border border-teal-600 font-bold px-2.5 py-1 rounded-full ml-2 align-middle tracking-wide uppercase"></span></h1>
@@ -167,19 +176,23 @@
         </div>
     </header>
 
+    <!-- Main Form -->
     <main id="mainApp" class="p-4 max-w-lg mx-auto hidden mt-2">
         <form id="inspeksiForm" class="space-y-5">
             <div class="form-section">
+                <!-- 1. Tgl Cycle Count -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Tgl Cycle Count</label>
                     <input type="text" id="tglCycleCount" name="tglCycleCount" class="input-field" readonly required>
                 </div>
                 
+                <!-- 2. Pelaksana -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Pelaksana</label>
                     <input type="text" id="pelaksana" name="pelaksana" class="input-field bg-gray-100 text-gray-500" readonly>
                 </div>
 
+                <!-- 3. Material -->
                 <div id="logistikSearchGroup" class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Material / Part Number</label>
                     <div class="relative mt-1">
@@ -191,6 +204,7 @@
                         </div>
                         <div id="suggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
                     </div>
+                    <!-- Keterangan Detail Ketersediaan Stock Real-Time di Bawah Input Material -->
                     <p id="stockInfoFeedback" class="text-xs text-teal-700 mt-2 font-semibold hidden">
                         <i class="fas fa-boxes text-teal-600 mr-1.5 animate-pulse"></i>
                         Ketersediaan Stock: <span id="stockInfoValue" class="font-bold text-gray-900">0</span> <span id="stockInfoUom" class="text-gray-500 text-[10px]"></span>
@@ -200,103 +214,125 @@
 
                 <div id="statusIndicator" class="hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm"></div>
 
+                <!-- Informasi MB52 Info Card -->
                 <div id="mb52InfoCard" class="hidden mb-4 p-4 rounded-xl text-sm border bg-teal-50 border-teal-200 text-teal-900 shadow-sm">
                     <div class="font-bold border-b border-teal-200 pb-1.5 mb-2 flex items-center gap-1.5">
                         <i class="fas fa-warehouse text-teal-700"></i> Informasi Stock (MB52 DC Palaran)
                     </div>
+                    <!-- Header Tabel -->
                     <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-1 border-b border-teal-200/50 pb-1">
                         <div>Sloc</div>
                         <div>Storage Bin</div>
                         <div>Unrestricted</div>
                     </div>
+                    <!-- Wadah Baris Dinamis -->
                     <div id="mb52RowsContainer" class="space-y-1 max-h-40 overflow-y-auto mb-2">
-                        </div>
+                        <!-- Baris data sloc & bin akan dimasukkan lewat JS -->
+                    </div>
+                    <!-- Baris Total Kumulatif -->
                     <div class="border-t border-teal-200 pt-2 flex justify-between text-xs font-bold text-teal-950">
                         <span>TOTAL UNRESTRICTED</span>
                         <span id="mb52TotalUnrestricted">-</span>
                     </div>
                 </div>
 
+                <!-- Banner Informasi Mode Revisi -->
                 <div id="revisiModeBadge" class="hidden mb-4 p-3 rounded-xl text-xs font-bold text-center border shadow-sm bg-teal-50 text-teal-700 border-teal-200 flex justify-between items-center">
                     <span><i class="fas fa-edit mr-1.5"></i> Mode: Mode Revisi Qty Data Sebelumnya</span>
                     <button type="button" id="btnResetMode" class="text-[10px] bg-teal-200 hover:bg-teal-300 text-teal-800 px-2.5 py-1 rounded-md font-bold transition-colors">Batal Revisi</button>
                 </div>
 
+                <!-- 4. Material Description -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Material Description</label>
                     <textarea id="description" name="description" class="input-field" rows="2" readonly></textarea>
                 </div>
 
+                <!-- 5. Part Number -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Part Number</label>
                     <input type="text" id="partNumber" name="partNumber" class="input-field">
                 </div>
 
+                <!-- 5b. Uom -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Uom</label>
                     <input type="text" id="uom" name="uom" class="input-field">
                 </div>
 
+                <!-- 6. Material Type -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Material Type</label>
                     <input type="text" id="materialType" name="materialType" class="input-field">
                 </div>
 
+                <!-- 7. Terdaftar Non SOH -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Terdaftar Non SOH</label>
                     <input type="text" id="terdaftarNonSoh" name="terdaftarNonSoh" class="input-field">
                 </div>
 
+                <!-- 8. Qty Non SOH -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Non SOH</label>
                     <input type="number" id="qtyNonSoh" name="qtyNonSoh" class="input-field">
                 </div>
 
+                <!-- 9. Site Diskrepansi -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Site Diskrepansi</label>
                     <input type="text" id="siteDiskrepansi" name="siteDiskrepansi" class="input-field">
                 </div>
 
+                <!-- 10. Qty Diskrepansi -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Diskrepansi</label>
                     <input type="number" id="qtyDiskrepansi" name="qtyDiskrepansi" class="input-field">
                 </div>
 
+                <!-- 11. Tindakan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Tindakan</label>
                     <input type="text" id="tindakan" name="tindakan" class="input-field">
                 </div>
 
+                <!-- 12. Qty Tindakan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Tindakan</label>
                     <input type="number" id="qtyTindakan" name="qtyTindakan" class="input-field">
                 </div>
 
+                <!-- 12b. Qty Cycle Count -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Cycle Count</label>
                     <input type="number" id="qtyCycleCount" name="qtyCycleCount" class="input-field">
+                    <!-- Keterangan Detail WITA Revisi Qty Sebelumnya -->
                     <p id="prevQtyFeedback" class="text-[11px] text-teal-700 mt-1.5 font-semibold hidden">
                         <i class="fas fa-info-circle text-teal-600 mr-1"></i>
                         Qty Cycle Count sebelumnya ialah <span id="prevQtyVal" class="font-bold text-red-600">0</span>. jika anda melakukan revisi maka jumlahkan qty sebelumnya dengan qty yng baru anda temukan.
                     </p>
                 </div>
 
+                <!-- 13. Actual Final -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Actual Final</label>
                     <input type="number" id="actualFinal" name="actualFinal" class="input-field bg-gray-100 text-gray-500" readonly required>
                     <p class="text-[11px] text-gray-500 mt-1 font-medium"><i class="fas fa-info-circle text-teal-600 mr-1"></i>Yang di-input ialah actual final yang part non SOH, bukan semua qty</p>
                 </div>
 
+                <!-- 14. Finalisasi Value -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Finalisasi Value <span class="text-xs font-normal text-gray-400 ml-1">(Auto: Actual Final x Price)</span></label>
                     <input type="number" id="finalisasiValue" name="finalisasiValue" class="input-field bg-gray-100 text-gray-500" readonly>
                 </div>
 
+                <!-- 15. Alarm -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Alarm</label>
                     <input type="text" id="alarm" name="alarm" class="input-field">
                 </div>
 
+                <!-- 15b. Kategori Part -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Kategori Part <span class="text-red-500">*</span></label>
                     <select id="partCategory" name="partCategory" class="input-field" required>
@@ -306,6 +342,7 @@
                     </select>
                 </div>
 
+                <!-- 16. Packing To Box Group -->
                 <div id="packingToBoxGroup" class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Packing To Box</label>
                     <select id="packingToBox" name="packingToBox" class="input-field">
@@ -344,13 +381,16 @@
                     </select>
                 </div>
 
+                <!-- 16b. BIN Kalibrasi (Dinamis untuk Part non SOH) -->
                 <div id="binKalibrasiGroup" class="mb-4 hidden relative">
                     <label class="block text-sm font-semibold text-gray-700">BIN Kalibrasi <span class="text-red-500">*</span></label>
                     <input type="text" id="binKalibrasi" name="binKalibrasi" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN..." autocomplete="off">
                     <div id="binSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
                 </div>
 
+                <!-- Group Field untuk Part DC (Dinamis) -->
                 <div id="partDcFieldsGroup" class="hidden">
+                    <!-- Tindakan Part DC Dropdown -->
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700">Tindakan Part DC <span class="text-red-500">*</span></label>
                         <select id="partDcAction" name="partDcAction" class="input-field">
@@ -360,12 +400,14 @@
                         </select>
                     </div>
 
+                    <!-- BIN Asal -->
                     <div class="mb-4 relative">
                         <label class="block text-sm font-semibold text-gray-700">BIN Asal <span class="text-red-500">*</span></label>
                         <input type="text" id="binAsal" name="binAsal" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN asal..." autocomplete="off">
                         <div id="binAsalSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
                     </div>
 
+                    <!-- BIN Tujuan -->
                     <div id="binTujuanFieldGroup" class="mb-4 relative hidden">
                         <label class="block text-sm font-semibold text-gray-700">BIN Tujuan <span class="text-red-500">*</span></label>
                         <input type="text" id="binTujuan" name="binTujuan" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN tujuan..." autocomplete="off">
@@ -373,11 +415,13 @@
                     </div>
                 </div>
 
+                <!-- 16c. Additional Information / Informasi Tambahan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Additional Information / Informasi Tambahan</label>
                     <textarea id="additionalInfo" name="additionalInfo" class="input-field" rows="2" placeholder="Masukkan informasi tambahan jika ada..."></textarea>
                 </div>
 
+                <!-- 17. Dokumentasi -->
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Dokumentasi <span class="text-red-500">*</span></label>
                     <div class="flex items-center justify-center w-full">
@@ -396,10 +440,12 @@
                         <p class="text-[11px] text-gray-400 font-medium">Format: JPG/PNG</p>
                         <button type="button" id="retakeBtn" class="hidden text-xs text-gray-600 font-bold bg-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-300 active:scale-[0.95] transition-all"><i class="fas fa-redo-alt mr-1.5"></i>Ulangi Foto</button>
                     </div>
+                    <!-- Hidden field to store base64 image -->
                     <input type="hidden" id="fotoBase64" name="fotoBase64">
                 </div>
             </div>
 
+            <!-- Submit Button -->
             <div class="mt-8 mb-10">
                 <button type="submit" id="submitBtn" class="w-full bg-teal-700 hover:bg-teal-600 active:bg-teal-800 active:scale-[0.98] text-white font-bold py-4 px-4 rounded-xl shadow-xl shadow-teal-900/20 flex justify-center items-center transition-all transform hover:-translate-y-0.5">
                     <i class="fas fa-cloud-upload-alt mr-2 text-lg"></i> Submit Data Cycle Count
@@ -408,6 +454,7 @@
         </form>
     </main>
 
+    <!-- Modal Peringatan Duplikasi / Pilihan Revisi -->
     <div id="duplicateModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-[160] hidden flex justify-center items-center backdrop-blur-sm p-4">
         <div class="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl transform scale-100 transition-all">
             <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 border-[6px] border-amber-100">
@@ -440,12 +487,14 @@
         </div>
     </div>
 
+    <!-- Overlay Loading -->
     <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-[150] hidden flex-col justify-center items-center text-white backdrop-blur-sm">
         <i class="fas fa-circle-notch fa-spin text-5xl mb-5 text-gray-300"></i>
         <p class="font-bold text-xl tracking-tight">Sinkronisasi Data</p>
         <p class="text-sm text-gray-400 mt-1 font-medium">Menyimpan ke sistem *Cloud*...</p>
     </div>
 
+    <!-- Modal Success (Auto-Closing / Non-blocking) -->
     <div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-[150] hidden flex justify-center items-center backdrop-blur-sm p-4">
         <div class="bg-white p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl transform scale-100 transition-transform">
             <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 border-[6px] border-green-100">
@@ -524,6 +573,7 @@
         const binTujuanFieldGroup = document.getElementById('binTujuanFieldGroup');
         const binAsalSuggestionBox = document.getElementById('binAsalSuggestionBox');
         const binTujuanSuggestionBox = document.getElementById('binTujuanSuggestionBox');
+        
         const btnGoToExport = document.getElementById('btnGoToExport');
         const btnGoToForm = document.getElementById('btnGoToForm');
         const btnMenuLogout = document.getElementById('btnMenuLogout');
@@ -537,6 +587,8 @@
         const btnModeRevisi = document.getElementById('btnModeRevisi');
         const btnModeBaru = document.getElementById('btnModeBaru');
         const btnResetMode = document.getElementById('btnResetMode');
+        
+        // Elemen visual informasi stock pelaksana kustom di bawah kolom material
         const stockInfoFeedback = document.getElementById('stockInfoFeedback');
         const stockInfoValue = document.getElementById('stockInfoValue');
         const stockInfoUom = document.getElementById('stockInfoUom');
@@ -557,6 +609,7 @@
         const alarmInput = document.getElementById('alarm');
         const additionalInfoInput = document.getElementById('additionalInfo');
 
+        // Elemen global tambahan untuk mencegah ReferenceError secara absolut
         const statusIndicator = document.getElementById('statusIndicator');
         const mb52Card = document.getElementById('mb52InfoCard');
         const duplicateModal = document.getElementById('duplicateModal');
@@ -603,6 +656,7 @@
             }, 3500);
         }
 
+        // Resilient PapaParse Native Document Loader 
         function loadCSV(url) {
             return new Promise((resolve, reject) => {
                 Papa.parse(url, {
@@ -711,6 +765,7 @@
             }
         }
 
+        // --- SINKRONISASI VISUAL KETERANGAN STOCK REAL-TIME DI BAWAH KOLOM MATERIAL ---
         function renderStockInfoFeedback(matCode, uomVal) {
             if (!stockInfoFeedback || !stockInfoValue) return;
             
@@ -826,6 +881,8 @@
             }
         }
 
+        // PERBAIKAN SINKRONISASI DETEKSI HEADER: Pemetaan dinamis total stock untuk mengantisipasi letak kolom yang bergeser
+        // Dibuat lebih presisi untuk memprioritaskan Kolom L (indeks 11 / UNRESTRICTED) dan mengabaikan Kolom N (indeks 13 / VALUE UNRESTRICTED)
         function indexMb52Data(data) {
             mb52DataMap.clear();
             if (!data || !Array.isArray(data) || data.length <= 1) return;
@@ -839,6 +896,7 @@
                 if (h === 'STORAGE LOCATION' || h.includes('STORAGE LOCATION') || h === 'LGORT' || h === 'SLOC') slocIdx = c;
                 if (h === 'STORAGE BIN' || h.includes('STORAGE BIN') || h === 'LGPBE' || h === 'BIN') binIdx = c;
                 
+                // Utamakan pencarian eksak untuk kolom stok unrestricted kuantitas (Kolom L)
                 if (h === 'UNRESTRICTED' || h === 'LABST' || h === 'UNRESTRICTED-USE' || h === 'UNRESTRICTED-USE STOCK') {
                     unrestrictedIdx = c;
                     exactUnrestrictedFound = true;
@@ -849,6 +907,7 @@
                 }
             }
 
+            // Failsafe: Jika unrestrictedIdx salah membaca kolom N (13), paksa kembali menggunakan Kolom L (11)
             if (unrestrictedIdx === 13) {
                 unrestrictedIdx = 11;
             }
@@ -1221,6 +1280,7 @@
                     }
                     
                     const sourceHeaders = rawCsvData[0].map(h => h ? h.toString().trim().toUpperCase() : '');
+                    // PERBAIKAN BUG UTAMA: Menghilangkan ReferenceError h is not defined dengan mengoreksi loop callback token
                     const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => sh === t || sh.includes(t)));
 
                     // Pemetaan Indeks database 26 kolom
@@ -1577,7 +1637,7 @@
                         calculateFinalisasiValue(); 
 
                         // Tampilkan data visual ketersediaan stock real-time di bawah kolom material
-                        renderStockInfoFeedback(actualMatNum || inputVal, uomInput.value);
+                        renderStockInfoFeedback(actualMatNum || inputVal, pickedUom);
 
                     } else {
                         if (statusIndicator) {
