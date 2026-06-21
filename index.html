@@ -121,7 +121,7 @@
                 <input type="password" id="loginPassword" class="input-field w-full text-center text-xl tracking-[0.25em] py-3 uppercase" placeholder="••••••••" oninput="this.value = this.value.toUpperCase()">
                 <p id="loginError" class="text-red-500 text-xs text-center mt-2 hidden font-medium"><i class="fas fa-exclamation-circle mr-1"></i><span id="loginErrorMsg">Kredensial tidak valid</span></p>
             </div>
-            <button type="button" id="btnLogin" class="w-full bg-teal-600 hover:bg-teal-500 active:bg-teal-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-teal-900/20">Otorisasi Masuk</button>
+            <button type="button" id="btnLogin" class="w-full bg-teal-600 hover:bg-teal-50 active:bg-teal-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-teal-900/20">Otorisasi Masuk</button>
         </div>
     </div>
 
@@ -501,7 +501,7 @@
                 <i class="fas fa-check text-4xl text-green-500"></i>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2 tracking-tight">Inspeksi Berhasil</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Data telah tersimpan ke <a href="https://docs.google.com/spreadsheets/d/1cKH5_GvaXszc1hMYfvVd71l6pcvr_sP3z7pCuGCSFww/edit?gid=510576667#gid=510576667" target="_blank" class="text-teal-600 hover:underline font-bold">Spreadsheet Hasil</a>.<br><span class="font-semibold text-slate-700">Formulir berikutnya langsung terbuka...</span></p>
+            <p class="text-gray-500 text-sm leading-relaxed">Data telah tersimpan ke <a href="https://docs.google.com/spreadsheets/d/1cKH5_GvaXszc1hMYfvVd71l6pcvr_sP3z7pCuGCSFww/edit?gid=712174515#gid=712174515" target="_blank" class="text-teal-600 hover:underline font-bold">Spreadsheet Hasil</a>.<br><span class="font-semibold text-slate-700">Formulir berikutnya langsung terbuka...</span></p>
         </div>
     </div>
 
@@ -510,7 +510,7 @@
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnQbo-YWaGpGmsjGUWMEZAANWFEvO0Y71KZoUwKQbvHlTSfh6lHP4IRyjNKQm0ImdrrQ/exec'; 
         const CSV_MASTER_DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT0F-_GBZjjgdgL5FGA37rBcicMRZPN4ZJ2cp8h-xDhixdbRdbAaS3QeRPa1bbyY54TWi2Twuz86bpL/pub?gid=756101325&single=true&output=csv';
         const CSV_ANALISA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=909242961&single=true&output=csv';
-        const CSV_SUBMITTED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=510576667&single=true&output=csv';
+        const CSV_SUBMITTED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=712174515&single=true&output=csv';
         const CSV_ANTREAN_URL = '';
         const CSV_SOH_DC_URL = '';
         const CSV_PRICE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ89SrRMBq0EYLeMFFTMAWbhVl-pzj4x9xZjW73nRw4FCTdIOGYplmkpHkKaf3VRRVnlqGjQWb8fcet/pub?gid=247161967&single=true&output=csv';
@@ -573,7 +573,6 @@
         const binTujuanFieldGroup = document.getElementById('binTujuanFieldGroup');
         const binAsalSuggestionBox = document.getElementById('binAsalSuggestionBox');
         const binTujuanSuggestionBox = document.getElementById('binTujuanSuggestionBox');
-        
         const btnGoToExport = document.getElementById('btnGoToExport');
         const btnGoToForm = document.getElementById('btnGoToForm');
         const btnMenuLogout = document.getElementById('btnMenuLogout');
@@ -587,8 +586,6 @@
         const btnModeRevisi = document.getElementById('btnModeRevisi');
         const btnModeBaru = document.getElementById('btnModeBaru');
         const btnResetMode = document.getElementById('btnResetMode');
-        
-        // Elemen visual informasi stock pelaksana kustom di bawah kolom material
         const stockInfoFeedback = document.getElementById('stockInfoFeedback');
         const stockInfoValue = document.getElementById('stockInfoValue');
         const stockInfoUom = document.getElementById('stockInfoUom');
@@ -609,7 +606,6 @@
         const alarmInput = document.getElementById('alarm');
         const additionalInfoInput = document.getElementById('additionalInfo');
 
-        // Elemen global tambahan untuk mencegah ReferenceError secara absolut
         const statusIndicator = document.getElementById('statusIndicator');
         const mb52Card = document.getElementById('mb52InfoCard');
         const duplicateModal = document.getElementById('duplicateModal');
@@ -765,7 +761,6 @@
             }
         }
 
-        // --- SINKRONISASI VISUAL KETERANGAN STOCK REAL-TIME DI BAWAH KOLOM MATERIAL ---
         function renderStockInfoFeedback(matCode, uomVal) {
             if (!stockInfoFeedback || !stockInfoValue) return;
             
@@ -881,8 +876,6 @@
             }
         }
 
-        // PERBAIKAN SINKRONISASI DETEKSI HEADER: Pemetaan dinamis total stock untuk mengantisipasi letak kolom yang bergeser
-        // Dibuat lebih presisi untuk memprioritaskan Kolom L (indeks 11 / UNRESTRICTED) dan mengabaikan Kolom N (indeks 13 / VALUE UNRESTRICTED)
         function indexMb52Data(data) {
             mb52DataMap.clear();
             if (!data || !Array.isArray(data) || data.length <= 1) return;
@@ -896,7 +889,6 @@
                 if (h === 'STORAGE LOCATION' || h.includes('STORAGE LOCATION') || h === 'LGORT' || h === 'SLOC') slocIdx = c;
                 if (h === 'STORAGE BIN' || h.includes('STORAGE BIN') || h === 'LGPBE' || h === 'BIN') binIdx = c;
                 
-                // Utamakan pencarian eksak untuk kolom stok unrestricted kuantitas (Kolom L)
                 if (h === 'UNRESTRICTED' || h === 'LABST' || h === 'UNRESTRICTED-USE' || h === 'UNRESTRICTED-USE STOCK') {
                     unrestrictedIdx = c;
                     exactUnrestrictedFound = true;
@@ -907,7 +899,6 @@
                 }
             }
 
-            // Failsafe: Jika unrestrictedIdx salah membaca kolom N (13), paksa kembali menggunakan Kolom L (11)
             if (unrestrictedIdx === 13) {
                 unrestrictedIdx = 11;
             }
@@ -951,10 +942,10 @@
             const headers = data[0];
             for (let c = 0; c < headers.length; c++) {
                 const hText = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
-                if (hText === 'MATERIAL' || hText === 'MATERIAL NUMBER' || hText === 'MATERIAL CODE') matIdx = c;
-                if (hText === 'ACTUAL FINAL NON SOH' || hText === 'ACTUAL FINAL') actFinalIdx = c;
+                if (hText === 'MATERIAL' || hText === 'MATERIAL NUMBER' || hText === 'MATERIAL CODE' || hText === 'ITEM') matIdx = c;
+                if (hText === 'ACTUAL FINAL NON SOH' || hText === 'ACTUAL FINAL' || hText.includes('ACTUAL FINAL')) actFinalIdx = c;
                 if (hText === 'PACKING TO BOX' || hText === 'PACKING BOX' || hText === 'BOX') packBoxIdx = c;
-                if (hText === 'ACTUAL FISIK CYCLE COUNT' || hText === 'ACTUAL FISIK' || hText === 'QTY FISIK' || hText === 'ACTUAL FISIK CYCLE COUNT ') qtyCycleIdx = c;
+                if (hText === 'ACTUAL FISIK CYCLE COUNT' || hText === 'ACTUAL FISIK' || hText === 'QTY FISIK' || hText.includes('CYCLE COUNT') || hText.includes('FISIK')) qtyCycleIdx = c;
             }
 
             for (let i = 1; i < data.length; i++) {
@@ -1029,64 +1020,34 @@
             
             if (actualFinalInput) actualFinalInput.value = actualFinalVal;
 
-            if (partCategorySelect) {
-                if (actualFinalVal > 0) {
-                    partCategorySelect.value = "Part non SOH";
-                    partCategorySelect.setAttribute('readonly', 'true');
-                } else {
-                    partCategorySelect.value = "Part DC";
-                    partCategorySelect.setAttribute('readonly', 'true');
-                }
-                partCategorySelect.dispatchEvent(new Event('change'));
-            }
-            
             calculateFinalisasiValue();
         }
 
-        async function checkDuplicateInInspections(matNum) {
+        // PERBAIKAN: Menghapus ketergantungan pencarian manual dan memindahkannya ke listener kolom material
+        function checkDuplicateInInspections(matNum) {
+            if (!matNum) return;
             const searchMatNum = matNum.toString().trim().toUpperCase().replace(/^0+/, ''); 
             let duplicateRow = null;
 
             if (window.sessionSubmittedData && window.sessionSubmittedData[searchMatNum]) {
                 duplicateRow = window.sessionSubmittedData[searchMatNum];
-            } else if (cachedSubmittedData && cachedSubmittedData.length > 0) {
-                let matIdx = 3; 
-                let actFinalIdx = 16; 
-                let packBoxIdx = 19; 
-                let qtyCycleIdx = 15;
-                
-                const headers = cachedSubmittedData[0];
-                for (let c = 0; c < headers.length; c++) {
-                    const hText = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
-                    if (hText === 'MATERIAL' || hText === 'MATERIAL NUMBER' || hText === 'MATERIAL CODE') matIdx = c;
-                    if (hText === 'ACTUAL FINAL NON SOH' || hText === 'ACTUAL FINAL') actFinalIdx = c;
-                    if (hText === 'PACKING TO BOX' || hText === 'PACKING BOX' || hText === 'BOX') packBoxIdx = c;
-                    if (hText === 'ACTUAL FISIK CYCLE COUNT' || hText === 'ACTUAL FISIK' || hText === 'QTY FISIK' || hText === 'ACTUAL FISIK CYCLE COUNT ') qtyCycleIdx = c;
-                }
-
-                for (let i = cachedSubmittedData.length - 1; i >= 1; i--) {
-                    const row = cachedSubmittedData[i];
-                    let cellVal = row[matIdx] ? row[matIdx].toString().trim().toUpperCase() : '';
-                    if (cellVal.startsWith("'")) cellVal = cellVal.substring(1);
-                    cellVal = cellVal.replace(/^0+/, '');
-                    
-                    if (cellVal === searchMatNum) {
-                        duplicateRow = {
-                            actualFinal: row[actFinalIdx] ? row[actFinalIdx].toString().trim() : '0',
-                            packingToBox: row[packBoxIdx] ? row[packBoxIdx].toString().trim() : '',
-                            qtyCycleCount: row[qtyCycleIdx] ? row[qtyCycleIdx].toString().trim() : '0'
-                        };
-                        break;
-                    }
-                }
+            } else if (submittedDataMap && submittedDataMap.has(searchMatNum)) {
+                duplicateRow = submittedDataMap.get(searchMatNum);
             }
 
             if (duplicateRow) {
-                document.getElementById('dupMaterialCode').textContent = searchMatNum;
-                document.getElementById('dupQtyCycleCount').textContent = duplicateRow.qtyCycleCount || '0';
-                document.getElementById('dupActualFinal').textContent = duplicateRow.actualFinal || '-';
-                document.getElementById('dupPackingToBox').textContent = duplicateRow.packingToBox || '-';
+                const elMatCode = document.getElementById('dupMaterialCode');
+                const elQtyCycle = document.getElementById('dupQtyCycleCount');
+                const elActFinal = document.getElementById('dupActualFinal');
+                const elPackBox = document.getElementById('dupPackingToBox');
+                
+                if (elMatCode) elMatCode.textContent = searchMatNum;
+                if (elQtyCycle) elQtyCycle.textContent = duplicateRow.qtyCycleCount || '0';
+                if (elActFinal) elActFinal.textContent = duplicateRow.actualFinal || '-';
+                if (elPackBox) elPackBox.textContent = duplicateRow.packingToBox || '-';
+                
                 window.currentDuplicateData = duplicateRow;
+                
                 if (duplicateModal) duplicateModal.classList.remove('hidden');
             }
         }
@@ -1214,7 +1175,6 @@
                     binTujuanInput.removeAttribute('required');
                 }
 
-                // Sembunyikan keterangan Qty Cycle Count sebelumnya
                 const prevQtyFeedback = document.getElementById('prevQtyFeedback');
                 if (prevQtyFeedback) prevQtyFeedback.classList.add('hidden');
 
@@ -1280,10 +1240,9 @@
                     }
                     
                     const sourceHeaders = rawCsvData[0].map(h => h ? h.toString().trim().toUpperCase() : '');
-                    // PERBAIKAN BUG UTAMA: Menghilangkan ReferenceError h is not defined dengan mengoreksi loop callback token
                     const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => sh === t || sh.includes(t)));
 
-                    // Pemetaan Indeks database 26 kolom
+                    // Pemetaan Indeks database 26 Kolom
                     const tsIdx = findIdx(['TIMESTAMP']);
                     const tglIdx = findIdx(['TGL CYCLE COUNT', 'TGL CYCLE']);
                     const pelIdx = findIdx(['PELAKSANA', 'PIC']);
@@ -1292,6 +1251,13 @@
                     const partIdx = findIdx(['PART NUMBER']);
                     const uomIdx = findIdx(['UOM']);
                     const typeIdx = findIdx(['MATERIAL TYPE']);
+                    const terNonSohIdx = findIdx(['TERDAFTAR NON SOH']);
+                    const qtyNonSohIdx = findIdx(['QTY NON SOH']);
+                    const siteDiskIdx = findIdx(['SITE DISKREPANSI', 'SITE DISKREPANCY']);
+                    const qtyDiskIdx = findIdx(['QTY DISKREPANSI', 'QTY DISKREPANCY']);
+                    const tindIdx = findIdx(['TINDAKAN']);
+                    const qtyTindIdx = findIdx(['QTY TINDAKAN']);
+                    const dcPalIdx = findIdx(['SOH DC PALARAN']);
                     const fisikIdx = findIdx(['ACTUAL FISIK', 'CYCLE COUNT', 'QTY FISIK']);
                     const finalIdx = findIdx(['ACTUAL FINAL NON SOH', 'ACTUAL FINAL']);
                     const valIdx = findIdx(['FINALISASI VALUE']);
@@ -1314,6 +1280,13 @@
                         partIdx !== -1 && row[partIdx] !== undefined ? row[partIdx] : '',
                         uomIdx !== -1 && row[uomIdx] !== undefined ? row[uomIdx] : '',
                         typeIdx !== -1 && row[typeIdx] !== undefined ? row[typeIdx] : '',
+                        terNonSohIdx !== -1 && row[terNonSohIdx] !== undefined ? row[terNonSohIdx] : '',
+                        qtyNonSohIdx !== -1 && row[qtyNonSohIdx] !== undefined ? row[qtyNonSohIdx] : '',
+                        siteDiskIdx !== -1 && row[siteDiskIdx] !== undefined ? row[siteDiskIdx] : '',
+                        qtyDiskIdx !== -1 && row[qtyDiskIdx] !== undefined ? row[qtyDiskIdx] : '',
+                        tindIdx !== -1 && row[tindIdx] !== undefined ? row[tindIdx] : '',
+                        qtyTindIdx !== -1 && row[qtyTindIdx] !== undefined ? row[qtyTindIdx] : '',
+                        dcPalIdx !== -1 && row[dcPalIdx] !== undefined ? row[dcPalIdx] : '',
                         fisikIdx !== -1 && row[fisikIdx] !== undefined ? row[fisikIdx] : '',
                         finalIdx !== -1 && row[finalIdx] !== undefined ? row[finalIdx] : '',
                         valIdx !== -1 && row[valIdx] !== undefined ? row[valIdx] : '',
@@ -1327,7 +1300,7 @@
                         infoIdx !== -1 && row[infoIdx] !== undefined ? row[infoIdx] : ''
                     ]);
 
-                    const targetHeaders = ["Timestamp", "Tgl Cycle Count", "Pelaksana", "Material", "Material Description", "Part Number", "UoM", "Material Type SOH DC Palaran", "Actual Fisik Cycle Count", "Actual Final Non SOH", "Finalisasi Value", "Alarm", "Packing To Box", "Dokumentasi", "Link CCP", "Kalibrasi BIN", "BIN Asal", "Bin Tujuan", "Additional Information"];
+                    const targetHeaders = ["Timestamp", "Tgl Cycle Count", "Pelaksana", "Material", "Material Description", "Part Number", "UoM", "Material Type", "Terdaftar Non SOH", "Qty Non SOH", "Site Diskrepansi", "Qty Diskrepansi", "Tindakan", "Qty Tindakan", "SOH DC Palaran", "Actual Fisik Cycle Count", "Actual Final Non SOH", "Finalisasi Value", "Alarm", "Packing To Box", "Dokumentasi", "Link CCP", "Kalibrasi BIN", "BIN Asal", "Bin Tujuan", "Additional Information"];
                     
                     const exportData = [targetHeaders, ...mappedRows];
                     const worksheet = XLSX.utils.aoa_to_sheet(exportData);
@@ -1458,21 +1431,19 @@
                 if (finalField) finalField.value = '';
 
                 try {
-                    if (!cachedMasterData) {
+                    // Check jika data CSV utama belum terload, jika sudah ada, langsung eksekusi logika O(1)
+                    if (!cachedMasterData && CSV_MASTER_DATA_URL) {
                         cachedMasterData = await loadCSV(CSV_MASTER_DATA_URL);
                         indexMasterData(cachedMasterData);
                     }
-
                     if (!cachedAnalisaData && CSV_ANALISA_URL) {
                         cachedAnalisaData = await loadCSV(CSV_ANALISA_URL);
                         indexAnalisaData(cachedAnalisaData);
                     }
-                    
                     if (!cachedPriceData && CSV_PRICE_URL) {
                         cachedPriceData = await loadCSV(CSV_PRICE_URL);
                         indexPriceData(cachedPriceData);
                     }
-
                     if (!cachedMb52Data && CSV_MB52_URL) {
                         cachedMb52Data = await loadCSV(CSV_MB52_URL);
                         indexMb52Data(cachedMb52Data);
@@ -1624,12 +1595,26 @@
                             currentTotalUnrestricted = totalUnrestricted; 
                             calculateActualFinal(); 
                             if (mb52Card) mb52Card.classList.remove('hidden');
+                            
+                            // PERBAIKAN: SET OTOMATIS KATEGORI PART DC
+                            if (partCategorySelect) {
+                                partCategorySelect.value = "Part DC";
+                                partCategorySelect.setAttribute('readonly', 'true');
+                                partCategorySelect.dispatchEvent(new Event('change'));
+                            }
                         } else {
                             mb52RowsContainer.innerHTML = '';
                             mb52TotalUnrestricted.textContent = '-';
                             currentTotalUnrestricted = 0;
                             calculateActualFinal();
                             if (mb52Card) mb52Card.classList.add('hidden');
+                            
+                            // PERBAIKAN: SET OTOMATIS KATEGORI PART NON SOH
+                            if (partCategorySelect) {
+                                partCategorySelect.value = "Part non SOH";
+                                partCategorySelect.setAttribute('readonly', 'true');
+                                partCategorySelect.dispatchEvent(new Event('change'));
+                            }
                         }
 
                         // O(1) Dual-Format Price Lookup
@@ -1658,14 +1643,29 @@
                         tindakanInput.removeAttribute('readonly');
                         qtyTindakanInput.removeAttribute('readonly');
                         alarmInput.removeAttribute('readonly');
+                        
+                        // PERBAIKAN: SET OTOMATIS KATEGORI PART NON SOH JIKA TIDAK DITEMUKAN DI MASTER DATA
+                        if (partCategorySelect) {
+                            partCategorySelect.value = "Part non SOH";
+                            partCategorySelect.setAttribute('readonly', 'true');
+                            partCategorySelect.dispatchEvent(new Event('change'));
+                        }
 
                         renderStockInfoFeedback(inputVal, '');
                     }
 
-                    cachedSubmittedData = await loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime());
-                    indexSubmittedData(cachedSubmittedData);
-                    
-                    await checkDuplicateInInspections(actualMatNum || inputVal);
+                    // Pengecekan riwayat inputan sebelumnya dari local memory secara instan (O(1))
+                    checkDuplicateInInspections(actualMatNum || inputVal);
+
+                    // Pembaruan Background tanpa memberhentikan aplikasi (menghilangkan LAG)
+                    if (CSV_SUBMITTED_URL) {
+                        loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime()).then(data => {
+                            cachedSubmittedData = data;
+                            indexSubmittedData(data);
+                            // Jika sebelumnya tidak kedeteksi karena cache telat, cek lagi untuk jaga-jaga
+                            checkDuplicateInInspections(actualMatNum || inputVal);
+                        }).catch(e => console.warn("Background fetch submitted data failed:", e));
+                    }
 
                 } catch (error) {
                     console.error("Fetch error:", error);
@@ -1802,6 +1802,12 @@
         }
 
         // --- INTERACTION EVENT LISTENERS ---
+        
+        // Listener tambahan agar Actual Final ter-kalkulasi setiap kali input Qty Cycle diketik
+        if (qtyCycleCountInput) {
+            qtyCycleCountInput.addEventListener('input', calculateActualFinal);
+        }
+
         if (packingToBoxSelect) {
             packingToBoxSelect.addEventListener('change', function() {
                 const val = this.value;
