@@ -6,7 +6,6 @@
     <title>Inspeksi Dead Stock 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <!-- Tambahan Pustaka SheetJS untuk Export ke Format Excel (.xlsx) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -86,7 +85,6 @@
 </head>
 <body class="text-gray-800 pb-20">
 
-    <!-- Custom Toast Container -->
     <div id="toastNotification" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[200] opacity-0 pointer-events-none flex items-center gap-3 bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-gray-700 max-w-sm w-11/12">
         <div class="w-6 h-6 rounded-full flex items-center justify-center bg-gray-800 shrink-0">
             <i id="toastIcon" class="fas fa-info-circle text-teal-400"></i>
@@ -94,7 +92,6 @@
         <span id="toastMessage" class="text-xs font-semibold leading-snug"></span>
     </div>
 
-    <!-- Login Screen -->
     <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-teal-700 to-teal-900 z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm border border-teal-50">
             <div class="text-center mb-8">
@@ -105,7 +102,6 @@
                 <p class="text-sm text-gray-500 mt-1">Reduce Inventory 2026</p>
             </div>
             <div class="mb-5">
-                <!-- Dropdown PIC Terkalibrasi -->
                 <select id="loginPicName" class="input-field w-full text-center text-lg py-3 mb-3 font-medium uppercase">
                     <option value="" disabled selected>-- PILIH NAMA PIC --</option>
                     <option value="ASMAN">ASMAN</option>
@@ -124,7 +120,6 @@
         </div>
     </div>
 
-    <!-- Menu Utama Grid Screen (Responsif & Mengisi Space Kosong) -->
     <div id="menuScreen" class="fixed inset-0 bg-gradient-to-br from-teal-700 to-teal-900 z-[90] hidden flex flex-col items-center justify-center p-4 overflow-y-auto">
         <div class="w-full max-w-sm md:max-w-2xl bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-teal-50">
             <div class="text-center mb-6">
@@ -137,7 +132,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <!-- Pilihan 1: Form Penginputan -->
                 <button type="button" id="btnGoToForm" class="w-full flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-all text-left group">
                     <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700 shrink-0 group-hover:scale-105 transition-transform">
                         <i class="fas fa-clipboard-list text-xl"></i>
@@ -148,7 +142,6 @@
                     </div>
                 </button>
 
-                <!-- Pilihan 2: Export Data Inspeksi (Langsung Download Excel) -->
                 <button type="button" id="btnGoToExport" class="w-full flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-all text-left group">
                     <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 group-hover:scale-105 transition-transform">
                         <i class="fas fa-file-excel text-xl"></i>
@@ -164,7 +157,6 @@
         </div>
     </div>
 
-    <!-- Header -->
     <header id="appHeader" class="bg-teal-800 text-white p-4 sticky top-0 z-50 shadow-lg hidden border-b border-teal-700">
         <div class="flex items-center justify-between max-w-lg mx-auto">
             <h1 class="text-lg font-bold tracking-tight"><i class="fas fa-clipboard-check mr-2 text-teal-200"></i> Inspeksi <span id="roleBadge" class="text-[10px] bg-teal-700 text-teal-100 border border-teal-600 font-bold px-2.5 py-1 rounded-full ml-2 align-middle tracking-wide uppercase"></span></h1>
@@ -175,23 +167,19 @@
         </div>
     </header>
 
-    <!-- Main Form -->
     <main id="mainApp" class="p-4 max-w-lg mx-auto hidden mt-2">
         <form id="inspeksiForm" class="space-y-5">
             <div class="form-section">
-                <!-- 1. Tgl Cycle Count -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Tgl Cycle Count</label>
-                    <input type="date" id="tglCycleCount" name="tglCycleCount" class="input-field" readonly required>
+                    <input type="text" id="tglCycleCount" name="tglCycleCount" class="input-field" readonly required>
                 </div>
                 
-                <!-- 2. Pelaksana -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Pelaksana</label>
                     <input type="text" id="pelaksana" name="pelaksana" class="input-field bg-gray-100 text-gray-500" readonly>
                 </div>
 
-                <!-- 3. Material -->
                 <div id="logistikSearchGroup" class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Material / Part Number</label>
                     <div class="relative mt-1">
@@ -203,129 +191,112 @@
                         </div>
                         <div id="suggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
                     </div>
+                    <p id="stockInfoFeedback" class="text-xs text-teal-700 mt-2 font-semibold hidden">
+                        <i class="fas fa-boxes text-teal-600 mr-1.5 animate-pulse"></i>
+                        Ketersediaan Stock: <span id="stockInfoValue" class="font-bold text-gray-900">0</span> <span id="stockInfoUom" class="text-gray-500 text-[10px]"></span>
+                        <span id="stockInfoBins" class="block text-[10px] text-teal-800 font-medium mt-0.5 bg-teal-50/50 p-1.5 rounded-lg border border-teal-100/50"></span>
+                    </p>
                 </div>
 
                 <div id="statusIndicator" class="hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm"></div>
 
-                <!-- Informasi MB52 Info Card -->
                 <div id="mb52InfoCard" class="hidden mb-4 p-4 rounded-xl text-sm border bg-teal-50 border-teal-200 text-teal-900 shadow-sm">
                     <div class="font-bold border-b border-teal-200 pb-1.5 mb-2 flex items-center gap-1.5">
                         <i class="fas fa-warehouse text-teal-700"></i> Informasi Stock (MB52 DC Palaran)
                     </div>
-                    <!-- Header Tabel -->
                     <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-1 border-b border-teal-200/50 pb-1">
                         <div>Sloc</div>
                         <div>Storage Bin</div>
                         <div>Unrestricted</div>
                     </div>
-                    <!-- Wadah Baris Dinamis -->
                     <div id="mb52RowsContainer" class="space-y-1 max-h-40 overflow-y-auto mb-2">
-                        <!-- Baris data sloc & bin akan dimasukkan lewat JS -->
-                    </div>
-                    <!-- Baris Total Kumulatif -->
+                        </div>
                     <div class="border-t border-teal-200 pt-2 flex justify-between text-xs font-bold text-teal-950">
                         <span>TOTAL UNRESTRICTED</span>
                         <span id="mb52TotalUnrestricted">-</span>
                     </div>
                 </div>
 
-                <!-- Banner Informasi Mode Revisi -->
                 <div id="revisiModeBadge" class="hidden mb-4 p-3 rounded-xl text-xs font-bold text-center border shadow-sm bg-teal-50 text-teal-700 border-teal-200 flex justify-between items-center">
-                    <span><i class="fas fa-edit mr-1.5"></i> Mode: Merevisi Qty Data Sebelumnya</span>
+                    <span><i class="fas fa-edit mr-1.5"></i> Mode: Mode Revisi Qty Data Sebelumnya</span>
                     <button type="button" id="btnResetMode" class="text-[10px] bg-teal-200 hover:bg-teal-300 text-teal-800 px-2.5 py-1 rounded-md font-bold transition-colors">Batal Revisi</button>
                 </div>
 
-                <!-- 4. Material Description -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Material Description</label>
                     <textarea id="description" name="description" class="input-field" rows="2" readonly></textarea>
                 </div>
 
-                <!-- 5. Part Number -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Part Number</label>
                     <input type="text" id="partNumber" name="partNumber" class="input-field">
                 </div>
 
-                <!-- 5b. Uom -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Uom</label>
                     <input type="text" id="uom" name="uom" class="input-field">
                 </div>
 
-                <!-- 6. Material Type -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Material Type</label>
                     <input type="text" id="materialType" name="materialType" class="input-field">
                 </div>
 
-                <!-- 7. Terdaftar Non SOH -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Terdaftar Non SOH</label>
                     <input type="text" id="terdaftarNonSoh" name="terdaftarNonSoh" class="input-field">
                 </div>
 
-                <!-- 8. Qty Non SOH -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Non SOH</label>
                     <input type="number" id="qtyNonSoh" name="qtyNonSoh" class="input-field">
                 </div>
 
-                <!-- 9. Site Diskrepansi -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Site Diskrepansi</label>
                     <input type="text" id="siteDiskrepansi" name="siteDiskrepansi" class="input-field">
                 </div>
 
-                <!-- 10. Qty Diskrepansi -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Diskrepansi</label>
                     <input type="number" id="qtyDiskrepansi" name="qtyDiskrepansi" class="input-field">
                 </div>
 
-                <!-- 11. Tindakan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Tindakan</label>
                     <input type="text" id="tindakan" name="tindakan" class="input-field">
                 </div>
 
-                <!-- 12. Qty Tindakan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Tindakan</label>
                     <input type="number" id="qtyTindakan" name="qtyTindakan" class="input-field">
                 </div>
 
-                <!-- 12b. Qty Cycle Count -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Qty Cycle Count</label>
                     <input type="number" id="qtyCycleCount" name="qtyCycleCount" class="input-field">
-                    <!-- Keterangan Detail WITA Revisi Qty Sebelumnya -->
                     <p id="prevQtyFeedback" class="text-[11px] text-teal-700 mt-1.5 font-semibold hidden">
                         <i class="fas fa-info-circle text-teal-600 mr-1"></i>
                         Qty Cycle Count sebelumnya ialah <span id="prevQtyVal" class="font-bold text-red-600">0</span>. jika anda melakukan revisi maka jumlahkan qty sebelumnya dengan qty yng baru anda temukan.
                     </p>
                 </div>
 
-                <!-- 13. Actual Final -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Actual Final</label>
                     <input type="number" id="actualFinal" name="actualFinal" class="input-field bg-gray-100 text-gray-500" readonly required>
                     <p class="text-[11px] text-gray-500 mt-1 font-medium"><i class="fas fa-info-circle text-teal-600 mr-1"></i>Yang di-input ialah actual final yang part non SOH, bukan semua qty</p>
                 </div>
 
-                <!-- 14. Finalisasi Value -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Finalisasi Value <span class="text-xs font-normal text-gray-400 ml-1">(Auto: Actual Final x Price)</span></label>
                     <input type="number" id="finalisasiValue" name="finalisasiValue" class="input-field bg-gray-100 text-gray-500" readonly>
                 </div>
 
-                <!-- 15. Alarm -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Alarm</label>
                     <input type="text" id="alarm" name="alarm" class="input-field">
                 </div>
 
-                <!-- 15b. Kategori Part -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Kategori Part <span class="text-red-500">*</span></label>
                     <select id="partCategory" name="partCategory" class="input-field" required>
@@ -335,7 +306,6 @@
                     </select>
                 </div>
 
-                <!-- 16. Packing To Box Group -->
                 <div id="packingToBoxGroup" class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Packing To Box</label>
                     <select id="packingToBox" name="packingToBox" class="input-field">
@@ -374,16 +344,13 @@
                     </select>
                 </div>
 
-                <!-- 16b. BIN Kalibrasi (Dinamis untuk Part non SOH) -->
                 <div id="binKalibrasiGroup" class="mb-4 hidden relative">
                     <label class="block text-sm font-semibold text-gray-700">BIN Kalibrasi <span class="text-red-500">*</span></label>
                     <input type="text" id="binKalibrasi" name="binKalibrasi" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN..." autocomplete="off">
                     <div id="binSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
                 </div>
 
-                <!-- Group Field untuk Part DC (Dinamis) -->
                 <div id="partDcFieldsGroup" class="hidden">
-                    <!-- Tindakan Part DC Dropdown -->
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700">Tindakan Part DC <span class="text-red-500">*</span></label>
                         <select id="partDcAction" name="partDcAction" class="input-field">
@@ -393,14 +360,12 @@
                         </select>
                     </div>
 
-                    <!-- BIN Asal -->
                     <div class="mb-4 relative">
                         <label class="block text-sm font-semibold text-gray-700">BIN Asal <span class="text-red-500">*</span></label>
                         <input type="text" id="binAsal" name="binAsal" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN asal..." autocomplete="off">
                         <div id="binAsalSuggestionBox" class="hidden absolute z-[60] w-full bg-white border border-gray-200 shadow-xl rounded-xl mt-1 max-h-48 overflow-y-auto"></div>
                     </div>
 
-                    <!-- BIN Tujuan -->
                     <div id="binTujuanFieldGroup" class="mb-4 relative hidden">
                         <label class="block text-sm font-semibold text-gray-700">BIN Tujuan <span class="text-red-500">*</span></label>
                         <input type="text" id="binTujuan" name="binTujuan" class="input-field" placeholder="Ketik angka / huruf untuk mencari BIN tujuan..." autocomplete="off">
@@ -408,13 +373,11 @@
                     </div>
                 </div>
 
-                <!-- 16c. Additional Information / Informasi Tambahan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Additional Information / Informasi Tambahan</label>
                     <textarea id="additionalInfo" name="additionalInfo" class="input-field" rows="2" placeholder="Masukkan informasi tambahan jika ada..."></textarea>
                 </div>
 
-                <!-- 17. Dokumentasi -->
                 <div class="mb-5">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Dokumentasi <span class="text-red-500">*</span></label>
                     <div class="flex items-center justify-center w-full">
@@ -433,12 +396,10 @@
                         <p class="text-[11px] text-gray-400 font-medium">Format: JPG/PNG</p>
                         <button type="button" id="retakeBtn" class="hidden text-xs text-gray-600 font-bold bg-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-300 active:scale-[0.95] transition-all"><i class="fas fa-redo-alt mr-1.5"></i>Ulangi Foto</button>
                     </div>
-                    <!-- Hidden field to store base64 image -->
                     <input type="hidden" id="fotoBase64" name="fotoBase64">
                 </div>
             </div>
 
-            <!-- Submit Button -->
             <div class="mt-8 mb-10">
                 <button type="submit" id="submitBtn" class="w-full bg-teal-700 hover:bg-teal-600 active:bg-teal-800 active:scale-[0.98] text-white font-bold py-4 px-4 rounded-xl shadow-xl shadow-teal-900/20 flex justify-center items-center transition-all transform hover:-translate-y-0.5">
                     <i class="fas fa-cloud-upload-alt mr-2 text-lg"></i> Submit Data Cycle Count
@@ -447,7 +408,6 @@
         </form>
     </main>
 
-    <!-- Modal Peringatan Duplikasi / Pilihan Revisi -->
     <div id="duplicateModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-[160] hidden flex justify-center items-center backdrop-blur-sm p-4">
         <div class="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl transform scale-100 transition-all">
             <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 border-[6px] border-amber-100">
@@ -480,21 +440,19 @@
         </div>
     </div>
 
-    <!-- Overlay Loading -->
     <div id="loadingOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-[150] hidden flex-col justify-center items-center text-white backdrop-blur-sm">
         <i class="fas fa-circle-notch fa-spin text-5xl mb-5 text-gray-300"></i>
         <p class="font-bold text-xl tracking-tight">Sinkronisasi Data</p>
         <p class="text-sm text-gray-400 mt-1 font-medium">Menyimpan ke sistem *Cloud*...</p>
     </div>
 
-    <!-- Modal Success (Auto-Closing / Non-blocking) -->
     <div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-[150] hidden flex justify-center items-center backdrop-blur-sm p-4">
         <div class="bg-white p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl transform scale-100 transition-transform">
             <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 border-[6px] border-green-100">
                 <i class="fas fa-check text-4xl text-green-500"></i>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2 tracking-tight">Inspeksi Berhasil</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Data telah tersimpan ke <a href="https://docs.google.com/spreadsheets/d/1cKH5_GvaXszc1hMYfvVd71l6pcvr_sP3z7pCuGCSFww/edit?gid=2127782604#gid=2127782604" target="_blank" class="text-teal-600 hover:underline font-bold">Spreadsheet Hasil</a>.<br><span class="font-semibold text-slate-700">Formulir berikutnya langsung terbuka...</span></p>
+            <p class="text-gray-500 text-sm leading-relaxed">Data telah tersimpan ke <a href="https://docs.google.com/spreadsheets/d/1cKH5_GvaXszc1hMYfvVd71l6pcvr_sP3z7pCuGCSFww/edit?gid=510576667#gid=510576667" target="_blank" class="text-teal-600 hover:underline font-bold">Spreadsheet Hasil</a>.<br><span class="font-semibold text-slate-700">Formulir berikutnya langsung terbuka...</span></p>
         </div>
     </div>
 
@@ -579,7 +537,11 @@
         const btnModeRevisi = document.getElementById('btnModeRevisi');
         const btnModeBaru = document.getElementById('btnModeBaru');
         const btnResetMode = document.getElementById('btnResetMode');
-        
+        const stockInfoFeedback = document.getElementById('stockInfoFeedback');
+        const stockInfoValue = document.getElementById('stockInfoValue');
+        const stockInfoUom = document.getElementById('stockInfoUom');
+        const stockInfoBins = document.getElementById('stockInfoBins');
+
         // Form Inputs dari sheet & master
         const pelaksanaInput = document.getElementById('pelaksana');
         const descriptionInput = document.getElementById('description');
@@ -594,6 +556,10 @@
         const qtyTindakanInput = document.getElementById('qtyTindakan');
         const alarmInput = document.getElementById('alarm');
         const additionalInfoInput = document.getElementById('additionalInfo');
+
+        const statusIndicator = document.getElementById('statusIndicator');
+        const mb52Card = document.getElementById('mb52InfoCard');
+        const duplicateModal = document.getElementById('duplicateModal');
 
         // --- UTILITY & HELPER FUNCTIONS ---
         // Penentu Tanggal Hari Ini Terkunci di WITA (GMT+8) - Mencegah Blank
@@ -647,7 +613,26 @@
                         resolve(results.data);
                     },
                     error: function(err) {
-                        reject(err);
+                        fetch(url)
+                            .then(res => {
+                                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                                return res.text();
+                            })
+                            .then(text => {
+                                Papa.parse(text, {
+                                    header: false,
+                                    skipEmptyLines: true,
+                                    complete: function(results) {
+                                        resolve(results.data);
+                                    },
+                                    error: function(err2) {
+                                        reject(err2);
+                                    }
+                                });
+                            })
+                            .catch(fetchErr => {
+                                reject(err || fetchErr);
+                            });
                     }
                 });
             });
@@ -726,6 +711,50 @@
             }
         }
 
+        function renderStockInfoFeedback(matCode, uomVal) {
+            if (!stockInfoFeedback || !stockInfoValue) return;
+            
+            const cleanMat = matCode.toString().trim().toUpperCase().replace(/^0+/, '');
+            const rowsMb52 = mb52DataMap.get(cleanMat) || mb52DataMap.get(matCode) || [];
+            
+            if (rowsMb52.length > 0) {
+                let totalQty = 0;
+                let bins = [];
+                
+                rowsMb52.forEach(item => {
+                    const row = item.row;
+                    const bin = row[item.binIdx] ? row[item.binIdx].trim() : '';
+                    const unrestrictedStr = row[item.unrestrictedIdx] ? row[item.unrestrictedIdx].trim() : '0';
+                    
+                    let qty = 0;
+                    if (unrestrictedStr !== '-' && unrestrictedStr !== '') {
+                        let cleanStr = unrestrictedStr.replace(/\s/g, '');
+                        if (cleanStr.includes('.') && cleanStr.lastIndexOf('.') > cleanStr.lastIndexOf(',')) {
+                            qty = parseFloat(cleanStr.replace(/,/g, '')) || 0;
+                        } else {
+                            qty = parseFloat(cleanStr.replace(/\./g, '').replace(',', '.')) || 0;
+                        }
+                    }
+                    totalQty += qty;
+                    if (bin && bin !== '-' && bin !== '') bins.push(bin);
+                });
+                
+                stockInfoValue.textContent = totalQty.toLocaleString('id-ID');
+                if (stockInfoUom) stockInfoUom.textContent = uomVal || '';
+                if (stockInfoBins) {
+                    stockInfoBins.textContent = bins.length > 0 
+                        ? `Tersebar di Lokasi BIN: ${[...new Set(bins)].join(', ')}` 
+                        : 'Tersebar di Lokasi BIN: -';
+                }
+                stockInfoFeedback.classList.remove('hidden');
+            } else {
+                stockInfoValue.textContent = '0';
+                if (stockInfoUom) stockInfoUom.textContent = uomVal || '';
+                if (stockInfoBins) stockInfoBins.textContent = 'Tersebar di Lokasi BIN: - (Part non SOH Baru)';
+                stockInfoFeedback.classList.remove('hidden');
+            }
+        }
+
         function indexAnalisaData(data) {
             cachedAnalisaMap.clear();
             if (!data || !Array.isArray(data) || data.length <= 1) return;
@@ -800,19 +829,34 @@
         function indexMb52Data(data) {
             mb52DataMap.clear();
             if (!data || !Array.isArray(data) || data.length <= 1) return;
+            let matIdx = 0;
             let slocIdx = 7, binIdx = 8, unrestrictedIdx = 11;
             const headers = data[0];
+            let exactUnrestrictedFound = false;
             for (let c = 0; c < headers.length; c++) {
                 const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
-                if (h === 'STORAGE LOCATION' || h.includes('STORAGE LOCATION')) slocIdx = c;
-                if (h === 'STORAGE BIN' || h.includes('STORAGE BIN')) binIdx = c;
-                if (h === 'UNRESTRICTED') unrestrictedIdx = c; 
+                if (h === 'MATERIAL' || h === 'MATERIAL NUMBER' || h === 'MATNR') matIdx = c;
+                if (h === 'STORAGE LOCATION' || h.includes('STORAGE LOCATION') || h === 'LGORT' || h === 'SLOC') slocIdx = c;
+                if (h === 'STORAGE BIN' || h.includes('STORAGE BIN') || h === 'LGPBE' || h === 'BIN') binIdx = c;
+                
+                if (h === 'UNRESTRICTED' || h === 'LABST' || h === 'UNRESTRICTED-USE' || h === 'UNRESTRICTED-USE STOCK') {
+                    unrestrictedIdx = c;
+                    exactUnrestrictedFound = true;
+                } else if (!exactUnrestrictedFound && h.includes('UNRESTRICTED') && !h.includes('VALUE') && !h.includes('VAL') && !h.includes('PRICE') && !h.includes('NILAI')) {
+                    unrestrictedIdx = c;
+                } else if (!exactUnrestrictedFound && (h === 'STOCK' || h === 'STOK')) {
+                    unrestrictedIdx = c;
+                }
+            }
+
+            if (unrestrictedIdx === 13) {
+                unrestrictedIdx = 11;
             }
 
             for (let i = 1; i < data.length; i++) {
                 const row = data[i];
                 if (!row) continue;
-                const mat = row[0] ? row[0].toString().trim().toUpperCase() : '';
+                const mat = row[matIdx] ? row[matIdx].toString().trim().toUpperCase() : '';
                 const cleanMat = mat.replace(/^0+/, '');
                 if (mat) {
                     const item = {
@@ -871,6 +915,120 @@
                     submittedDataMap.set(cellVal, obj);
                     submittedDataMap.set(cleanCellVal, obj); 
                 }
+            }
+        }
+
+        function getUniqueBins() {
+            if (!cachedMb52Data || cachedMb52Data.length <= 1) return [];
+            let binIdx = 8;
+            const headers = cachedMb52Data[0];
+            for (let c = 0; c < headers.length; c++) {
+                const h = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                if (h === 'STORAGE BIN' || h.includes('STORAGE BIN') || h === 'LGPBE' || h === 'BIN') binIdx = c;
+            }
+            const binsSet = new Set();
+            for (let i = 1; i < cachedMb52Data.length; i++) {
+                const row = cachedMb52Data[i];
+                if (row && row[binIdx]) {
+                    const binVal = row[binIdx].trim();
+                    if (binVal && binVal !== '-' && binVal !== '') {
+                        binsSet.add(binVal);
+                    }
+                }
+            }
+            return Array.from(binsSet).sort();
+        }
+
+        function calculateFinalisasiValue() {
+            if (!actualFinalInput) return;
+            const qty = parseFloat(actualFinalInput.value) || 0;
+            const price = currentMaterialPrice || 0;
+            const finalField = document.getElementById('finalisasiValue');
+            
+            if (finalField) {
+                if (qty > 0 && price > 0) {
+                    finalField.value = qty * price;
+                } else {
+                    finalField.value = '';
+                }
+            }
+        }
+
+        function calculateActualFinal() {
+            if (!qtyCycleCountInput) return;
+            const cycleCount = parseFloat(qtyCycleCountInput.value) || 0;
+            let actualFinalVal = 0;
+
+            if (currentTotalUnrestricted === 0) {
+                actualFinalVal = cycleCount; 
+            } else {
+                actualFinalVal = cycleCount - currentTotalUnrestricted;
+                if (actualFinalVal < 0) {
+                    actualFinalVal = 0; 
+                }
+            }
+            
+            if (actualFinalInput) actualFinalInput.value = actualFinalVal;
+
+            if (partCategorySelect) {
+                if (actualFinalVal > 0) {
+                    partCategorySelect.value = "Part non SOH";
+                    partCategorySelect.setAttribute('readonly', 'true');
+                } else {
+                    partCategorySelect.value = "Part DC";
+                    partCategorySelect.setAttribute('readonly', 'true');
+                }
+                partCategorySelect.dispatchEvent(new Event('change'));
+            }
+            
+            calculateFinalisasiValue();
+        }
+
+        async function checkDuplicateInInspections(matNum) {
+            const searchMatNum = matNum.toString().trim().toUpperCase().replace(/^0+/, ''); 
+            let duplicateRow = null;
+
+            if (window.sessionSubmittedData && window.sessionSubmittedData[searchMatNum]) {
+                duplicateRow = window.sessionSubmittedData[searchMatNum];
+            } else if (cachedSubmittedData && cachedSubmittedData.length > 0) {
+                let matIdx = 3; 
+                let actFinalIdx = 16; 
+                let packBoxIdx = 19; 
+                let qtyCycleIdx = 15;
+                
+                const headers = cachedSubmittedData[0];
+                for (let c = 0; c < headers.length; c++) {
+                    const hText = headers[c] ? headers[c].toString().trim().toUpperCase() : '';
+                    if (hText === 'MATERIAL' || hText === 'MATERIAL NUMBER' || hText === 'MATERIAL CODE') matIdx = c;
+                    if (hText === 'ACTUAL FINAL NON SOH' || hText === 'ACTUAL FINAL') actFinalIdx = c;
+                    if (hText === 'PACKING TO BOX' || hText === 'PACKING BOX' || hText === 'BOX') packBoxIdx = c;
+                    if (hText === 'ACTUAL FISIK CYCLE COUNT' || hText === 'ACTUAL FISIK' || hText === 'QTY FISIK' || hText === 'ACTUAL FISIK CYCLE COUNT ') qtyCycleIdx = c;
+                }
+
+                for (let i = cachedSubmittedData.length - 1; i >= 1; i--) {
+                    const row = cachedSubmittedData[i];
+                    let cellVal = row[matIdx] ? row[matIdx].toString().trim().toUpperCase() : '';
+                    if (cellVal.startsWith("'")) cellVal = cellVal.substring(1);
+                    cellVal = cellVal.replace(/^0+/, '');
+                    
+                    if (cellVal === searchMatNum) {
+                        duplicateRow = {
+                            actualFinal: row[actFinalIdx] ? row[actFinalIdx].toString().trim() : '0',
+                            packingToBox: row[packBoxIdx] ? row[packBoxIdx].toString().trim() : '',
+                            qtyCycleCount: row[qtyCycleIdx] ? row[qtyCycleIdx].toString().trim() : '0'
+                        };
+                        break;
+                    }
+                }
+            }
+
+            if (duplicateRow) {
+                document.getElementById('dupMaterialCode').textContent = searchMatNum;
+                document.getElementById('dupQtyCycleCount').textContent = duplicateRow.qtyCycleCount || '0';
+                document.getElementById('dupActualFinal').textContent = duplicateRow.actualFinal || '-';
+                document.getElementById('dupPackingToBox').textContent = duplicateRow.packingToBox || '-';
+                window.currentDuplicateData = duplicateRow;
+                if (duplicateModal) duplicateModal.classList.remove('hidden');
             }
         }
 
@@ -941,33 +1099,6 @@
             }
         }
 
-        // --- INITIALIZATION & EVENT LISTENERS ---
-        
-        // Pemuatan data submitted awal
-        if (CSV_SUBMITTED_URL) {
-            loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime())
-                .then(data => {
-                    cachedSubmittedData = data;
-                    indexSubmittedData(data);
-                })
-                .catch(e => {
-                    console.warn("Gagal memuat data submitted awal:", e);
-                });
-        }
-
-        // Event listener login
-        if (btnLogin) btnLogin.addEventListener('click', attemptLogin);
-        if (loginPicName) {
-            loginPicName.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && loginPassword) loginPassword.focus();
-            });
-        }
-        if (loginPassword) {
-            loginPassword.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') attemptLogin();
-            });
-        }
-
         // Tombol Back dalam header form
         if (btnLogout) {
             btnLogout.addEventListener('click', function() {
@@ -995,10 +1126,9 @@
                     packingToBoxSelect.removeAttribute('readonly');
                     packingToBoxSelect.removeAttribute('required');
                 }
-                const statusIndicator = document.getElementById('statusIndicator');
                 if (statusIndicator) statusIndicator.classList.add('hidden');
-                const mb52InfoCard = document.getElementById('mb52InfoCard');
-                if (mb52InfoCard) mb52InfoCard.classList.add('hidden');
+                if (mb52Card) mb52Card.classList.add('hidden');
+                if (stockInfoFeedback) stockInfoFeedback.classList.add('hidden');
                 
                 if (binKalibrasiInput) {
                     binKalibrasiInput.value = '';
@@ -1024,12 +1154,12 @@
                     binTujuanInput.value = '';
                     binTujuanInput.removeAttribute('required');
                 }
-                if (binTujuanFieldGroup) binTujuanFieldGroup.classList.add('hidden');
 
                 // Sembunyikan keterangan Qty Cycle Count sebelumnya
                 const prevQtyFeedback = document.getElementById('prevQtyFeedback');
                 if (prevQtyFeedback) prevQtyFeedback.classList.add('hidden');
 
+                if (pelaksanaInput) pelaksanaInput.value = currentPicName;
                 currentMaterialPrice = 0;
                 currentTotalUnrestricted = 0;
                 calculateActualFinal();
@@ -1037,7 +1167,19 @@
             });
         }
 
-        // Event listener navigasi menu utama
+        // Event login bindings
+        if (btnLogin) btnLogin.addEventListener('click', attemptLogin);
+        if (loginPicName) {
+            loginPicName.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && loginPassword) loginPassword.focus();
+            });
+        }
+        if (loginPassword) {
+            loginPassword.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') attemptLogin();
+            });
+        }
+
         if (btnGoToForm) {
             btnGoToForm.addEventListener('click', function() {
                 if (menuScreen) {
@@ -1064,7 +1206,6 @@
             });
         }
 
-        // --- DIRECT DOWNLOAD EXCEL VIA 19 STRUKTUR KOLOM UTAMA ---
         if (btnGoToExport) {
             btnGoToExport.addEventListener('click', async function() {
                 const btn = this;
@@ -1080,7 +1221,7 @@
                     }
                     
                     const sourceHeaders = rawCsvData[0].map(h => h ? h.toString().trim().toUpperCase() : '');
-                    const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => h === t || sh.includes(t)));
+                    const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => sh === t || sh.includes(t)));
 
                     // Pemetaan Indeks database 26 kolom
                     const tsIdx = findIdx(['TIMESTAMP']);
@@ -1145,7 +1286,6 @@
             });
         }
 
-        // --- OPTIMIZED REAL-TIME INTERACTIVE SEARCH (SOH GID 2011878581 & MASTER) ---
         if (materialNumberInput) {
             materialNumberInput.addEventListener('input', function(e) {
                 const val = this.value.trim().toUpperCase().replace(/^0+/, ''); 
@@ -1158,7 +1298,6 @@
 
                 const matches = new Map();
 
-                // 1. Prioritas Utama: Cari dari SOH DC Palaran (cachedMb52Data - GID 2011878581)
                 if (cachedMb52Data && Array.isArray(cachedMb52Data)) {
                     for (let i = 1; i < cachedMb52Data.length; i++) {
                         const row = cachedMb52Data[i];
@@ -1180,7 +1319,6 @@
                     }
                 }
 
-                // 2. Prioritas Kedua: Cari dari Master Data Utama
                 if (matches.size < 15 && cachedMasterData && Array.isArray(cachedMasterData)) {
                     for (let i = 1; i < cachedMasterData.length; i++) {
                         const row = cachedMasterData[i];
@@ -1231,22 +1369,19 @@
             });
         }
 
-        // --- PENYELARASAN METODE PENCARIAN TANGGUH DALAM KLIK TOMBOL CEK STATUS ---
         if (btnCekStatus) {
             btnCekStatus.addEventListener('click', async function() {
                 if (!materialNumberInput) return;
                 const inputVal = materialNumberInput.value.trim().toUpperCase(); 
-                const statusIndicator = document.getElementById('statusIndicator');
-                const mb52Card = document.getElementById('mb52InfoCard');
                 
                 if(!GOOGLE_SCRIPT_URL) return;
 
                 btnCekStatus.disabled = true;
-                statusIndicator.classList.add('hidden');
-                mb52Card.classList.add('hidden');
-                statusIndicator.className = 'hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm';
+                if (statusIndicator) statusIndicator.classList.add('hidden');
+                if (mb52Card) mb52Card.classList.add('hidden');
+                if (statusIndicator) statusIndicator.className = 'hidden mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm';
 
-                // --- PEMBERSIHAN STATE INSTAN (ANTI-GHOST DATA) ---
+                // --- PEMBERSIHAN STATE INSTAN ---
                 currentTotalUnrestricted = 0;
                 currentMaterialPrice = 0;
                 const mb52RowsContainer = document.getElementById('mb52RowsContainer');
@@ -1287,9 +1422,10 @@
                     const cleanInputVal = inputVal.replace(/^0+/, '');
                     const foundRowArray = masterDataMap.get(inputVal) || masterDataMap.get(cleanInputVal) || masterMpnMap.get(inputVal);
 
-                    statusIndicator.classList.remove('hidden');
+                    if (statusIndicator) statusIndicator.classList.remove('hidden');
                     
                     let actualMatNum = ''; 
+                    let pickedUom = '';
                     if (foundRowArray) {
                         actualMatNum = foundRowArray[0] ? foundRowArray[0].toString().trim() : '';
                         const actualMpn = foundRowArray[2] ? foundRowArray[2].toString().trim() : '';
@@ -1299,7 +1435,8 @@
                         partNumberInput.value = foundRowArray[2] ? foundRowArray[2].trim() : '';
                         partNumberInput.setAttribute('readonly', 'true');
 
-                        uomInput.value = foundRowArray[3] ? foundRowArray[3].trim() : '';
+                        pickedUom = foundRowArray[3] ? foundRowArray[3].trim() : '';
+                        uomInput.value = pickedUom;
                         uomInput.setAttribute('readonly', 'true');
                         
                         materialTypeInput.value = foundRowArray[4] ? foundRowArray[4].trim() : '';
@@ -1348,21 +1485,30 @@
                         qtyDiskrepansiInput.setAttribute('readonly', 'true');
                         tindakanInput.setAttribute('readonly', 'true');
                         qtyTindakanInput.setAttribute('readonly', 'true');
+                        alarmInput.value = statusValue;
                         alarmInput.setAttribute('readonly', 'true');
 
                         const statusUpper = statusValue.toUpperCase();
                         if (statusUpper.includes('BOX KHUSUS') || statusUpper.includes('PICKING TO BOX') || statusUpper.includes('PACKING TO BOX')) {
-                            statusIndicator.innerHTML = "<i class='fas fa-exclamation-triangle mr-1.5 animate-bounce inline-block'></i> PERHATIAN: " + statusValue.toUpperCase();
-                            statusIndicator.className = 'mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm bg-red-600 text-white border-red-800 shadow-lg shadow-red-600/50 animate-pulse text-base py-4';
+                            if (statusIndicator) {
+                                statusIndicator.innerHTML = "<i class='fas fa-exclamation-triangle mr-1.5 animate-bounce inline-block'></i> PERHATIAN: " + statusValue.toUpperCase();
+                                statusIndicator.className = 'mb-4 p-3 rounded-lg text-sm font-bold text-center border shadow-sm bg-red-600 text-white border-red-800 shadow-lg shadow-red-600/50 animate-pulse text-base py-4';
+                            }
                         } else if (statusUpper.includes('DEAD STOCK') || statusUpper.includes('BEBAN')) {
-                            statusIndicator.innerHTML = "<i class='fas fa-exclamation-triangle mr-1.5'></i> " + statusValue;
-                            statusIndicator.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+                            if (statusIndicator) {
+                                statusIndicator.innerHTML = "<i class='fas fa-exclamation-triangle mr-1.5'></i> " + statusValue;
+                                statusIndicator.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+                            }
                         } else if (statusValue !== "") {
-                            statusIndicator.innerHTML = "<i class='fas fa-info-circle mr-1.5'></i> " + statusValue;
-                            statusIndicator.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200');
+                            if (statusIndicator) {
+                                statusIndicator.innerHTML = "<i class='fas fa-info-circle mr-1.5'></i> " + statusValue;
+                                statusIndicator.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200');
+                            }
                         } else {
-                            statusIndicator.innerHTML = "<i class='fas fa-check-circle mr-1.5'></i> Data Ditemukan";
-                            statusIndicator.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                            if (statusIndicator) {
+                                statusIndicator.innerHTML = "<i class='fas fa-check-circle mr-1.5'></i> Data Ditemukan";
+                                statusIndicator.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                            }
                         }
 
                         // O(1) Dual-Format MB52 DC Palaran Stock Lookup
@@ -1372,12 +1518,14 @@
                         if (foundMb52Rows.length > 0) {
                             let htmlRows = '';
                             let totalUnrestricted = 0;
+                            let maxUnrestrictedQty = -1;
+                            let selectedBin = '';
                             
                             foundMb52Rows.forEach(item => {
                                 const row = item.row;
-                                const sloc = row[item.slocIdx] ? row[item.slocIdx].trim() : '-';
-                                const bin = row[item.binIdx] ? row[item.binIdx].trim() : '-';
-                                const unrestrictedStr = row[item.unrestrictedIdx] ? row[item.unrestrictedIdx].trim() : '0';
+                                const sloc = row[item.slocIdx] !== undefined ? row[item.slocIdx].trim() : '-';
+                                const bin = row[item.binIdx] !== undefined ? row[item.binIdx].trim() : '-';
+                                const unrestrictedStr = row[item.unrestrictedIdx] !== undefined ? row[item.unrestrictedIdx].trim() : '0';
                                 
                                 let unrestrictedQty = 0;
                                 if (unrestrictedStr !== '-' && unrestrictedStr !== '') {
@@ -1397,37 +1545,46 @@
                                         <div class="font-bold text-teal-950">${unrestrictedStr}</div>
                                     </div>
                                 `;
-                                if (binAsalInput && bin !== '-' && bin !== '') {
-                                    binAsalInput.value = bin; 
+                                
+                                // Pilih BIN yang memiliki stok unrestricted terbesar sebagai default BIN Asal
+                                if (bin && bin !== '-' && bin !== '') {
+                                    if (unrestrictedQty > maxUnrestrictedQty) {
+                                        maxUnrestrictedQty = unrestrictedQty;
+                                        selectedBin = bin;
+                                    }
                                 }
                             });
+
+                            if (binAsalInput && selectedBin !== '') {
+                                binAsalInput.value = selectedBin;
+                            }
 
                             mb52RowsContainer.innerHTML = htmlRows;
                             mb52TotalUnrestricted.textContent = totalUnrestricted.toLocaleString('id-ID');
                             currentTotalUnrestricted = totalUnrestricted; 
                             calculateActualFinal(); 
-                            mb52Card.classList.remove('hidden');
+                            if (mb52Card) mb52Card.classList.remove('hidden');
                         } else {
                             mb52RowsContainer.innerHTML = '';
                             mb52TotalUnrestricted.textContent = '-';
                             currentTotalUnrestricted = 0;
                             calculateActualFinal();
-                            mb52Card.classList.add('hidden');
+                            if (mb52Card) mb52Card.classList.add('hidden');
                         }
 
                         // O(1) Dual-Format Price Lookup
                         currentMaterialPrice = priceDataMap.get(cleanSearchMat) || priceDataMap.get(actualMatNum) || 0;
                         calculateFinalisasiValue(); 
 
-                        cachedSubmittedData = await loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime());
-                        indexSubmittedData(cachedSubmittedData);
-                        
-                        await checkDuplicateInInspections(actualMatNum || inputVal);
+                        // Tampilkan data visual ketersediaan stock real-time di bawah kolom material
+                        renderStockInfoFeedback(actualMatNum || inputVal, uomInput.value);
 
                     } else {
-                        statusIndicator.innerHTML = "<i class='fas fa-times-circle mr-1.5'></i> Material tidak ditemukan di Master Data";
-                        statusIndicator.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300');
-                        mb52Card.classList.add('hidden');
+                        if (statusIndicator) {
+                            statusIndicator.innerHTML = "<i class='fas fa-times-circle mr-1.5'></i> Material tidak ditemukan di Master Data";
+                            statusIndicator.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300');
+                        }
+                        if (mb52Card) mb52Card.classList.add('hidden');
                         currentTotalUnrestricted = 0;
                         calculateActualFinal();
 
@@ -1441,7 +1598,14 @@
                         tindakanInput.removeAttribute('readonly');
                         qtyTindakanInput.removeAttribute('readonly');
                         alarmInput.removeAttribute('readonly');
+
+                        renderStockInfoFeedback(inputVal, '');
                     }
+
+                    cachedSubmittedData = await loadCSV(CSV_SUBMITTED_URL + '&t=' + new Date().getTime());
+                    indexSubmittedData(cachedSubmittedData);
+                    
+                    await checkDuplicateInInspections(actualMatNum || inputVal);
 
                 } catch (error) {
                     console.error("Fetch error:", error);
@@ -1453,7 +1617,6 @@
             });
         }
 
-        // --- BUTTONS FOR DUPLICATES MODAL ---
         if (btnModeRevisi) {
             btnModeRevisi.addEventListener('click', function() {
                 if (window.currentDuplicateData) {
@@ -1475,7 +1638,6 @@
                         prevQtyFeedback.classList.remove('hidden');
                     }
 
-                    const duplicateModal = document.getElementById('duplicateModal');
                     if (duplicateModal) duplicateModal.classList.add('hidden');
                     showToast("Mode revisi data aktif. Silakan lakukan perubahan lalu submit.", "info");
                 }
@@ -1491,7 +1653,6 @@
                     packingToBoxSelect.removeAttribute('readonly');
                     packingToBoxSelect.removeAttribute('required');
                 }
-                const duplicateModal = document.getElementById('duplicateModal');
                 if (duplicateModal) duplicateModal.classList.add('hidden');
                 showToast("Melanjutkan sebagai input baris baru.", "info");
             });
@@ -1502,12 +1663,9 @@
                 if (formObj) formObj.reset();
                 setTglCycleCountWITA();
 
-                const duplicateModal = document.getElementById('duplicateModal');
                 if (duplicateModal) duplicateModal.classList.add('hidden');
-                const statusIndicator = document.getElementById('statusIndicator');
                 if (statusIndicator) statusIndicator.classList.add('hidden');
-                const mb52InfoCard = document.getElementById('mb52InfoCard');
-                if (mb52InfoCard) mb52InfoCard.classList.add('hidden');
+                if (mb52Card) mb52Card.classList.add('hidden');
                 
                 partNumberInput.removeAttribute('readonly');
                 uomInput.removeAttribute('readonly');
@@ -1793,7 +1951,6 @@
             });
         }
 
-        // --- SUBMIT HANDLING ---
         if (formObj) {
             formObj.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -1945,10 +2102,12 @@
                         }
                         if (binTujuanFieldGroup) binTujuanFieldGroup.classList.add('hidden');
 
+                        // Menyembunyikan keterangan Qty Cycle Count sebelumnya
+                        const prevQtyFeedback = document.getElementById('prevQtyFeedback');
+                        if (prevQtyFeedback) prevQtyFeedback.classList.add('hidden');
+
                         if (pelaksanaInput) pelaksanaInput.value = currentPicName;
-                        const statusIndicator = document.getElementById('statusIndicator');
                         if (statusIndicator) statusIndicator.classList.add('hidden');
-                        const mb52InfoCard = document.getElementById('mb52InfoCard');
                         if (mb52InfoCard) mb52InfoCard.classList.add('hidden');
                         currentMaterialPrice = 0;
                         currentTotalUnrestricted = 0;
@@ -1987,7 +2146,7 @@
             });
         }
 
-        // --- INTERAKTIF PIC DAN PASSWORD INPUT (Untuk Visual Umpan Balik Instan) ---
+        // --- INTERAKTIF PIC DAN PASSWORD INPUT ---
         if (loginPicName) {
             loginPicName.addEventListener('change', function() {
                 loginPicName.classList.remove('border-red-500', 'bg-red-50');
