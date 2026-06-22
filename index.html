@@ -1595,26 +1595,12 @@
                             currentTotalUnrestricted = totalUnrestricted; 
                             calculateActualFinal(); 
                             if (mb52Card) mb52Card.classList.remove('hidden');
-                            
-                            // PERBAIKAN: SET OTOMATIS KATEGORI PART DC
-                            if (partCategorySelect) {
-                                partCategorySelect.value = "Part DC";
-                                partCategorySelect.setAttribute('readonly', 'true');
-                                partCategorySelect.dispatchEvent(new Event('change'));
-                            }
                         } else {
                             mb52RowsContainer.innerHTML = '';
                             mb52TotalUnrestricted.textContent = '-';
                             currentTotalUnrestricted = 0;
                             calculateActualFinal();
                             if (mb52Card) mb52Card.classList.add('hidden');
-                            
-                            // PERBAIKAN: SET OTOMATIS KATEGORI PART NON SOH
-                            if (partCategorySelect) {
-                                partCategorySelect.value = "Part non SOH";
-                                partCategorySelect.setAttribute('readonly', 'true');
-                                partCategorySelect.dispatchEvent(new Event('change'));
-                            }
                         }
 
                         // O(1) Dual-Format Price Lookup
@@ -1643,13 +1629,6 @@
                         tindakanInput.removeAttribute('readonly');
                         qtyTindakanInput.removeAttribute('readonly');
                         alarmInput.removeAttribute('readonly');
-                        
-                        // PERBAIKAN: SET OTOMATIS KATEGORI PART NON SOH JIKA TIDAK DITEMUKAN DI MASTER DATA
-                        if (partCategorySelect) {
-                            partCategorySelect.value = "Part non SOH";
-                            partCategorySelect.setAttribute('readonly', 'true');
-                            partCategorySelect.dispatchEvent(new Event('change'));
-                        }
 
                         renderStockInfoFeedback(inputVal, '');
                     }
