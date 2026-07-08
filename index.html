@@ -418,7 +418,7 @@
                 <!-- 16c. Additional Information / Informasi Tambahan -->
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-gray-700">Additional Information / Informasi Tambahan</label>
-                    <textarea id="additionalInfo" name="additionalInfo" class="input-field" rows="2" placeholder="Masukkan informasi tambahan jika ada..."></textarea>
+                    <textarea id="additionalInfo" name="additionalInfo" class="input-field" rows="3" placeholder="Masukkan informasi tambahan jika ada..."></textarea>
                 </div>
 
                 <!-- 17. Dokumentasi -->
@@ -930,6 +930,7 @@
             }
         }
 
+        // PERBAIKAN: Menambahkan indexing untuk BIN Asal, BIN Tujuan, dan BIN Kalibrasi agar masuk ke dalam duplicate object
         function indexSubmittedData(data) {
             submittedDataMap.clear();
             if (!data || !Array.isArray(data) || data.length <= 1) return;
@@ -938,6 +939,9 @@
             let actFinalIdx = 16; 
             let packBoxIdx = 19;  
             let qtyCycleIdx = 15; 
+            let binKalIdx = -1;
+            let binAsalIdx = -1;
+            let binTujIdx = -1;
             
             const headers = data[0];
             for (let c = 0; c < headers.length; c++) {
@@ -946,6 +950,9 @@
                 if (hText === 'ACTUAL FINAL NON SOH' || hText === 'ACTUAL FINAL' || hText.includes('ACTUAL FINAL')) actFinalIdx = c;
                 if (hText === 'PACKING TO BOX' || hText === 'PACKING BOX' || hText === 'BOX') packBoxIdx = c;
                 if (hText === 'ACTUAL FISIK CYCLE COUNT' || hText === 'ACTUAL FISIK' || hText === 'QTY FISIK' || hText.includes('CYCLE COUNT') || hText.includes('FISIK')) qtyCycleIdx = c;
+                if (hText.includes('KALIBRASI BIN') || hText.includes('BIN KALIBRASI')) binKalIdx = c;
+                if (hText === 'BIN ASAL') binAsalIdx = c;
+                if (hText === 'BIN TUJUAN') binTujIdx = c;
             }
 
             for (let i = 1; i < data.length; i++) {
@@ -960,7 +967,10 @@
                     const obj = {
                         actualFinal: row[actFinalIdx] ? row[actFinalIdx].toString().trim() : '0',
                         packingToBox: row[packBoxIdx] ? row[packBoxIdx].toString().trim() : '',
-                        qtyCycleCount: row[qtyCycleIdx] ? row[qtyCycleIdx].toString().trim() : '0'
+                        qtyCycleCount: row[qtyCycleIdx] ? row[qtyCycleIdx].toString().trim() : '0',
+                        binKalibrasi: binKalIdx !== -1 && row[binKalIdx] ? row[binKalIdx].toString().trim() : '',
+                        binAsal: binAsalIdx !== -1 && row[binAsalIdx] ? row[binAsalIdx].toString().trim() : '',
+                        binTujuan: binTujIdx !== -1 && row[binTujIdx] ? row[binTujIdx].toString().trim() : ''
                     };
                     submittedDataMap.set(cellVal, obj);
                     submittedDataMap.set(cleanCellVal, obj); 
@@ -1023,15 +1033,17 @@
             calculateFinalisasiValue();
         }
 
-        // PERBAIKAN: Menghapus ketergantungan pencarian manual dan memindahkannya ke listener kolom material
         function checkDuplicateInInspections(matNum) {
             if (!matNum) return;
             const searchMatNum = matNum.toString().trim().toUpperCase().replace(/^0+/, ''); 
             let duplicateRow = null;
 
+            // 1. Cek dari inputan sesi saat ini (paling real-time)
             if (window.sessionSubmittedData && window.sessionSubmittedData[searchMatNum]) {
                 duplicateRow = window.sessionSubmittedData[searchMatNum];
-            } else if (submittedDataMap && submittedDataMap.has(searchMatNum)) {
+            } 
+            // 2. Cek dari database submittedDataMap (hasil tarikan awal sinkronisasi UI)
+            else if (submittedDataMap && submittedDataMap.has(searchMatNum)) {
                 duplicateRow = submittedDataMap.get(searchMatNum);
             }
 
@@ -1048,7 +1060,8 @@
                 
                 window.currentDuplicateData = duplicateRow;
                 
-                if (duplicateModal) duplicateModal.classList.remove('hidden');
+                const dModal = document.getElementById('duplicateModal');
+                if (dModal) dModal.classList.remove('hidden');
             }
         }
 
@@ -1175,6 +1188,7 @@
                     binTujuanInput.removeAttribute('required');
                 }
 
+                // Sembunyikan keterangan Qty Cycle Count sebelumnya
                 const prevQtyFeedback = document.getElementById('prevQtyFeedback');
                 if (prevQtyFeedback) prevQtyFeedback.classList.add('hidden');
 
@@ -1240,6 +1254,7 @@
                     }
                     
                     const sourceHeaders = rawCsvData[0].map(h => h ? h.toString().trim().toUpperCase() : '');
+                    // PERBAIKAN BUG UTAMA: Menghilangkan ReferenceError h is not defined dengan mengoreksi loop callback token
                     const findIdx = (tokens) => sourceHeaders.findIndex(sh => tokens.some(t => sh === t || sh.includes(t)));
 
                     // Pemetaan Indeks database 26 Kolom
@@ -1300,7 +1315,7 @@
                         infoIdx !== -1 && row[infoIdx] !== undefined ? row[infoIdx] : ''
                     ]);
 
-                    const targetHeaders = ["Timestamp", "Tgl Cycle Count", "Pelaksana", "Material", "Material Description", "Part Number", "UoM", "Material Type", "Terdaftar Non SOH", "Qty Non SOH", "Site Diskrepansi", "Qty Diskrepansi", "Tindakan", "Qty Tindakan", "SOH DC Palaran", "Actual Fisik Cycle Count", "Actual Final Non SOH", "Finalisasi Value", "Alarm", "Packing To Box", "Dokumentasi", "Link CCP", "Kalibrasi BIN", "BIN Asal", "Bin Tujuan", "Additional Information"];
+                    const targetHeaders = ["Timestamp", "Tgl Cycle Count", "Pelaksana", "Material", "Material Description", "Part Number", "UoM", "Material Type SOH DC Palaran", "Actual Fisik Cycle Count", "Actual Final Non SOH", "Finalisasi Value", "Alarm", "Packing To Box", "Dokumentasi", "Link CCP", "Kalibrasi BIN", "BIN Asal", "Bin Tujuan", "Additional Information"];
                     
                     const exportData = [targetHeaders, ...mappedRows];
                     const worksheet = XLSX.utils.aoa_to_sheet(exportData);
@@ -1675,6 +1690,31 @@
                     if (prevQtyFeedback && prevQtyVal) {
                         prevQtyVal.textContent = window.currentDuplicateData.qtyCycleCount || '0';
                         prevQtyFeedback.classList.remove('hidden');
+                    }
+
+                    // PERBAIKAN: Menyusun Resume Riwayat Lama ke dalam form Additional Information secara Otomatis
+                    const additionalInfoEl = document.getElementById('additionalInfo');
+                    if (additionalInfoEl) {
+                        const oldQty = window.currentDuplicateData.qtyCycleCount || '0';
+                        const oldBox = window.currentDuplicateData.packingToBox || '-';
+                        const oldBinAsal = window.currentDuplicateData.binAsal || '-';
+                        const oldBinTujuan = window.currentDuplicateData.binTujuan || '-';
+                        const oldBinKal = window.currentDuplicateData.binKalibrasi || '-';
+                        
+                        let resumeText = `=== RIWAYAT SEBELUM REVISI ===\n`;
+                        resumeText += `- Qty Sebelumnya: ${oldQty}\n`;
+                        resumeText += `- Packing Box: ${oldBox}\n`;
+                        if (oldBinAsal !== '-' && oldBinAsal !== '') resumeText += `- BIN Asal: ${oldBinAsal}\n`;
+                        if (oldBinTujuan !== '-' && oldBinTujuan !== '') resumeText += `- BIN Tujuan: ${oldBinTujuan}\n`;
+                        if (oldBinKal !== '-' && oldBinKal !== '') resumeText += `- BIN Kalibrasi: ${oldBinKal}\n`;
+                        resumeText += `==============================\n`;
+                        resumeText += `Catatan Perubahan:\n`;
+
+                        if (additionalInfoEl.value.trim() !== '') {
+                            additionalInfoEl.value = resumeText + additionalInfoEl.value;
+                        } else {
+                            additionalInfoEl.value = resumeText;
+                        }
                     }
 
                     if (duplicateModal) duplicateModal.classList.add('hidden');
@@ -2082,18 +2122,19 @@
                     if (result.status === 'success') {
                         if (loadingOverlay) loadingOverlay.classList.replace('flex', 'hidden');
                         
+                        // PERBAIKAN: Menyimpan data yang tersubmit ke dalam sesi / cache lokal
                         if (dataObj.materialNumber) {
                             const cleanMat = dataObj.materialNumber.toString().trim().toUpperCase().replace(/^0+/, '');
-                            window.sessionSubmittedData[cleanMat] = {
+                            const newObj = {
                                 actualFinal: dataObj.actualFinal,
                                 packingToBox: dataObj.packingToBox,
-                                qtyCycleCount: dataObj.qtyCycleCount
+                                qtyCycleCount: dataObj.qtyCycleCount,
+                                binKalibrasi: dataObj.binKalibrasi,
+                                binAsal: dataObj.binAsal,
+                                binTujuan: dataObj.binTujuan
                             };
-                            submittedDataMap.set(cleanMat, {
-                                actualFinal: dataObj.actualFinal,
-                                packingToBox: dataObj.packingToBox,
-                                qtyCycleCount: dataObj.qtyCycleCount
-                            });
+                            window.sessionSubmittedData[cleanMat] = newObj;
+                            submittedDataMap.set(cleanMat, newObj);
                         }
 
                         window.submitMode = 'baru';
